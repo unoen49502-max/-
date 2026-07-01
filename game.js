@@ -20,6 +20,22 @@
   const clearArt = document.getElementById("clear-art");
   const clearTimeEl = document.getElementById("clear-time");
   const clearNextBtn = document.getElementById("clear-next");
+  const faceEl = document.getElementById("face");
+
+  // キャラの表情切替
+  const FACE_CLASSES = ["face-neutral", "face-cry", "face-angry", "face-shock", "face-shy", "face-happy"];
+  let faceResetId = null;
+  function setFace(name) {
+    if (!faceEl) return;
+    faceEl.classList.remove(...FACE_CLASSES);
+    faceEl.classList.add("face-" + name);
+  }
+  // 一時的に表情を変えて、少ししたら neutral に戻す
+  function flashFace(name, ms) {
+    setFace(name);
+    if (faceResetId) clearTimeout(faceResetId);
+    faceResetId = setTimeout(() => setFace("neutral"), ms || 900);
+  }
 
   // --- state ---
   const EMPTY = 0, FILLED = 1, MARKED = 2;
@@ -117,6 +133,7 @@
 
     startTimer();
     updateClueStrike();
+    setFace("neutral");
   }
 
   // ===== 盤面生成 =====
@@ -269,22 +286,29 @@
   }
 
   // ===== ヒントの達成表示 =====
+  let doneLines = 0;
   function updateClueStrike() {
+    let done = 0;
     // 行
     for (let r = 0; r < rows; r++) {
       const playerLine = state[r].map(v => (v === FILLED ? 1 : 0));
+      const ok = arraysEqual(lineClue(playerLine), lineClue(current.solution[r]));
+      if (ok) done++;
       const el = board.querySelector(`.b-cluerow[data-row="${r}"]`);
-      if (el) el.classList.toggle("clue-done",
-        arraysEqual(lineClue(playerLine), lineClue(current.solution[r])));
+      if (el) el.classList.toggle("clue-done", ok);
     }
     // 列
     for (let c = 0; c < cols; c++) {
       const playerLine = state.map(row => (row[c] === FILLED ? 1 : 0));
       const solCol = current.solution.map(row => row[c]);
+      const ok = arraysEqual(lineClue(playerLine), lineClue(solCol));
+      if (ok) done++;
       const el = board.querySelector(`.b-cluecol[data-col="${c}"]`);
-      if (el) el.classList.toggle("clue-done",
-        arraysEqual(lineClue(playerLine), lineClue(solCol)));
+      if (el) el.classList.toggle("clue-done", ok);
     }
+    // ヒントが1本そろうたびに、キャラがちょっと反応する
+    if (!cleared && done > doneLines) flashFace("shy", 700);
+    doneLines = done;
   }
   function arraysEqual(a, b) {
     return a.length === b.length && a.every((v, i) => v === b[i]);
@@ -314,6 +338,7 @@
     renderClearArt();
     clearTimeEl.textContent = "TIME " + formatTime(seconds);
     clearOverlay.classList.remove("hidden");
+    setFace("happy");
   }
 
   function renderClearArt() {
@@ -368,9 +393,11 @@
     if (!current) return;
     state = Array.from({ length: rows }, () => new Array(cols).fill(EMPTY));
     cleared = false;
+    doneLines = 0;
     renderCells();
     updateClueStrike();
     startTimer();
+    flashFace("angry", 800);
   }
 
   // ===== イベント登録 =====

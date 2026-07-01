@@ -3,20 +3,33 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ドットピクロス</title>
+  <title>ドットピクロス｜あかりの店</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  <!-- 内装の背景演出 -->
+  <div class="room-bg">
+    <div class="lamp-glow"></div>
+    <div class="window-light"></div>
+    <div class="wood-floor"></div>
+  </div>
   <div class="scanlines"></div>
 
   <main class="app">
     <header class="titlebar">
       <h1 class="title">DOT PICROSS</h1>
-      <p class="subtitle">お絵かきロジック</p>
+      <p class="subtitle">あかりの ドットこうぼう</p>
     </header>
 
     <!-- パズル選択画面 -->
     <section id="select-screen" class="screen">
+      <div class="greeter">
+        <div class="char-stand" aria-hidden="true"></div>
+        <div class="speech">
+          <p class="speech-name">アカリ</p>
+          <p class="speech-text">すきな えを えらんでね！</p>
+        </div>
+      </div>
       <h2 class="screen-heading">SELECT PUZZLE</h2>
       <div id="puzzle-list" class="puzzle-list"></div>
     </section>
@@ -24,7 +37,10 @@
     <!-- ゲーム画面 -->
     <section id="game-screen" class="screen hidden">
       <div class="game-topbar">
-        <button id="back-btn" class="btn btn-small">&lt; BACK</button>
+        <button id="back-btn" class="btn btn-small">&lt; もどる</button>
+        <div class="face-chip">
+          <div id="face" class="face face-neutral" aria-hidden="true"></div>
+        </div>
         <div class="game-info">
           <span id="puzzle-name" class="puzzle-name">-</span>
           <span id="timer" class="timer">00:00</span>
@@ -38,18 +54,19 @@
       <div class="toolbar">
         <button id="mode-fill" class="btn mode-btn active">■ ぬる</button>
         <button id="mode-mark" class="btn mode-btn">✕ マーク</button>
-        <button id="reset-btn" class="btn btn-warn">RESET</button>
+        <button id="reset-btn" class="btn btn-warn">やりなおし</button>
       </div>
-      <p class="hint">左クリック=現在のモード / 右クリックで✕マーク</p>
+      <p class="hint">左クリック=いまのモード ／ 右クリックで✕マーク</p>
     </section>
 
     <!-- クリア画面 -->
     <div id="clear-overlay" class="overlay hidden">
       <div class="clear-box">
-        <h2 class="clear-title">CLEAR!</h2>
+        <div id="clear-face" class="face face-happy big-face" aria-hidden="true"></div>
+        <h2 class="clear-title">かんせい！</h2>
         <div id="clear-art" class="clear-art"></div>
         <p id="clear-time" class="clear-time">TIME 00:00</p>
-        <button id="clear-next" class="btn">次へ</button>
+        <button id="clear-next" class="btn">つぎへ</button>
       </div>
     </div>
   </main>
