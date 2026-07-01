@@ -7,13 +7,18 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <!-- 内装の背景演出 -->
-  <div class="room-bg">
-    <div class="lamp-glow"></div>
-    <div class="window-light"></div>
-    <div class="wood-floor"></div>
+  <!-- メンフィス風の背景装飾 -->
+  <div class="decor" aria-hidden="true">
+    <span class="shape tri-cyan"></span>
+    <span class="shape tri-yellow"></span>
+    <span class="shape tri-outline"></span>
+    <span class="shape dot-purple"></span>
+    <span class="shape dot-coral"></span>
+    <span class="shape dot-yellow"></span>
+    <span class="shape sq-cyan"></span>
+    <span class="shape sq-purple"></span>
+    <span class="shape zig-yellow"></span>
   </div>
-  <div class="scanlines"></div>
 
   <main class="app">
     <header class="titlebar">
@@ -62,7 +67,6 @@
     <!-- クリア画面 -->
     <div id="clear-overlay" class="overlay hidden">
       <div class="clear-box">
-        <div class="unicorn-deco" aria-hidden="true"></div>
         <div id="clear-face" class="face face-happy big-face" aria-hidden="true"></div>
         <h2 class="clear-title">かんせい！</h2>
         <div id="clear-art" class="clear-art"></div>
