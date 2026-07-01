@@ -358,6 +358,7 @@
   // ===== 画面遷移 =====
   function backToSelect() {
     stopTimer();
+    clearOverlay.classList.add("hidden");
     gameScreen.classList.add("hidden");
     selectScreen.classList.remove("hidden");
     renderSelect();
