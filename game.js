@@ -79,6 +79,16 @@
   let dragging = false, dragValue = null, dragTarget = null;
   let lpTimer = null, lpCell = null, lpStart = null;
 
+  // ピンチズーム／パン
+  let boardEventsAttached = false;
+  const pts = new Map();
+  let pinching = false, pinchStart = null;
+  const view = { scale: 1, x: 0, y: 0 };
+  const ptDist = (a, b) => Math.hypot(a.x - b.x, a.y - b.y);
+  const ptMid = (a, b) => ({ x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 });
+  function applyView() { board.style.transform = `translate(${view.x}px, ${view.y}px) scale(${view.scale})`; }
+  function resetView() { view.scale = 1; view.x = 0; view.y = 0; applyView(); }
+
   // ===== 保存データ =====
   function loadSolved() {
     try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; }
@@ -171,10 +181,11 @@
     updateModeButtons();
 
     puzzleNameEl.textContent = p.name;
-    buildBoard();
     selectScreen.classList.add("hidden");
     gameScreen.classList.remove("hidden");
     clearOverlay.classList.add("hidden");
+    resetView();
+    buildBoard();
 
     startTimer();
     updateClueStrike();
@@ -191,11 +202,13 @@
     const maxRowClue = Math.max(...rClues.map(c => c.length));
     const maxColClue = Math.max(...cClues.map(c => c.length));
 
-    const cellSize = pickCellSize(cols + maxRowClue);
-    const clueColW = Math.max(cellSize, 22);
+    const wrapW = (board.parentElement && board.parentElement.clientWidth) || (window.innerWidth - 80);
+    const cellSize = pickCellSize(cols + maxRowClue, wrapW);
 
-    board.style.gridTemplateColumns = `${maxRowClue * clueColW}px repeat(${cols}, ${cellSize}px)`;
+    board.style.gridTemplateColumns = `${maxRowClue * cellSize}px repeat(${cols}, ${cellSize}px)`;
     board.style.gridTemplateRows = `${maxColClue * cellSize}px repeat(${rows}, ${cellSize}px)`;
+    // ヒント文字サイズをセルに合わせる（下限を確保）
+    board.style.setProperty("--clue-fs", Math.max(11, Math.min(16, Math.round(cellSize * 0.6))) + "px");
     board.innerHTML = "";
 
     const corner = document.createElement("div");
@@ -233,10 +246,10 @@
     renderCells();
   }
 
-  function pickCellSize(totalCols) {
-    const avail = Math.min(window.innerWidth - 96, 460);
-    const size = Math.floor(avail / totalCols);
-    return Math.max(16, Math.min(size, 34));
+  function pickCellSize(totalCols, avail) {
+    const a = (avail && avail > 40) ? avail : (window.innerWidth - 80);
+    const size = Math.floor((a - 2) / totalCols);
+    return Math.max(14, Math.min(size, 34));
   }
 
   // ===== セル描画 =====
@@ -280,9 +293,43 @@
   }
 
   function attachBoardEvents() {
+    if (boardEventsAttached) return;   // #board は使い回すので登録は一度だけ
+    boardEventsAttached = true;
+
+    const wrap = board.parentElement; // .board-wrap
+
+    // --- 2本指ピンチズーム／パン ---
+    wrap.addEventListener("pointerdown", e => {
+      pts.set(e.pointerId, { x: e.clientX, y: e.clientY });
+      if (pts.size === 2) {
+        pinching = true;
+        if (lpTimer) { clearTimeout(lpTimer); lpTimer = null; }
+        dragging = false;
+        const [a, b] = [...pts.values()];
+        pinchStart = { dist: ptDist(a, b), mid: ptMid(a, b), scale: view.scale, x: view.x, y: view.y };
+      }
+    }, { capture: true });
+    wrap.addEventListener("pointermove", e => {
+      if (!pinching) return;
+      if (pts.has(e.pointerId)) pts.set(e.pointerId, { x: e.clientX, y: e.clientY });
+      if (pts.size < 2) return;
+      const [a, b] = [...pts.values()];
+      let s = pinchStart.scale * (ptDist(a, b) / pinchStart.dist);
+      s = Math.max(1, Math.min(3, s));
+      const m = ptMid(a, b);
+      view.scale = s;
+      if (s === 1) { view.x = 0; view.y = 0; }
+      else { view.x = pinchStart.x + (m.x - pinchStart.mid.x); view.y = pinchStart.y + (m.y - pinchStart.mid.y); }
+      applyView();
+    }, { capture: true });
+    const dropPt = e => { pts.delete(e.pointerId); if (pts.size < 2) pinching = false; };
+    wrap.addEventListener("pointerup", dropPt, { capture: true });
+    wrap.addEventListener("pointercancel", dropPt, { capture: true });
+
     board.addEventListener("contextmenu", e => e.preventDefault());
 
     board.addEventListener("pointerdown", e => {
+      if (pinching || pts.size >= 2) return;
       const cell = e.target.closest(".cell");
       if (!cell || cleared) return;
       e.preventDefault();
@@ -306,6 +353,7 @@
     });
 
     board.addEventListener("pointermove", e => {
+      if (pinching || pts.size >= 2) return;
       const target = document.elementFromPoint(e.clientX, e.clientY);
       const cell = target && target.closest ? target.closest(".cell") : null;
 

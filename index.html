@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>メイのドット工房</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -13,12 +13,10 @@
   <div class="bg-screen" aria-hidden="true"></div>
 
   <main class="app">
-    <header class="titlebar">
-      <h1 class="title">メイのドット工房</h1>
-    </header>
-
     <!-- ===== セレクト画面（工房の壁） ===== -->
     <section id="select-screen" class="screen">
+      <header class="titlebar"><h1 class="title">メイのドット工房</h1></header>
+
       <div class="greeter">
         <div class="cam-frame cam-sm">
           <span class="cam-horn" aria-hidden="true"></span>
@@ -37,67 +35,60 @@
       <div id="puzzle-list" class="puzzle-list"></div>
     </section>
 
-    <!-- ===== ゲーム画面（配信オーバーレイ） ===== -->
+    <!-- ===== ゲーム画面（配信オーバーレイ・スマホ主軸） ===== -->
     <section id="game-screen" class="screen hidden">
-      <div class="overlay-grid">
-        <!-- メイン大パネル -->
-        <div class="main-panel">
-          <span class="horn panel-horn" aria-hidden="true"></span>
-          <span class="spark spark-tl" aria-hidden="true"></span>
-          <span class="spark spark-br" aria-hidden="true"></span>
-          <span class="corner-cross cc-tl" aria-hidden="true"></span>
-          <span class="corner-cross cc-tr" aria-hidden="true"></span>
-          <span class="corner-cross cc-bl" aria-hidden="true"></span>
-          <span class="corner-cross cc-br" aria-hidden="true"></span>
-          <div class="board-plate">
-            <div class="board-wrap"><div id="board" class="board"></div></div>
-          </div>
+      <!-- ヘッダー -->
+      <div class="game-header">
+        <span class="gh-title">メイのドット工房</span>
+        <span class="gh-status">
+          <span class="live-badge"><span class="live-dot"></span>LIVE</span>
+          <span class="timer" id="timer">00:00</span>
+        </span>
+      </div>
+
+      <!-- キャラ帯 -->
+      <div class="char-band">
+        <div class="cam-frame cam-band">
+          <span class="cam-horn" aria-hidden="true"></span>
+          <span class="cam-ear cam-ear-l" aria-hidden="true"></span>
+          <span class="cam-ear cam-ear-r" aria-hidden="true"></span>
+          <div class="cam-circle"><div class="cam-face js-face face-neutral" aria-hidden="true"></div></div>
+          <span class="cam-name">はぐれメイ</span>
         </div>
-
-        <!-- 点線セパレータ -->
-        <div class="sep" aria-hidden="true"></div>
-
-        <!-- 右カラム -->
-        <aside class="side">
-          <div class="info-panel">
-            <div class="logo">メイのドット工房</div>
-            <div class="info-row">
-              <span class="live-badge"><span class="live-dot"></span>LIVE</span>
-              <span id="timer" class="timer">00:00</span>
-            </div>
-            <div class="puzzle-name" id="puzzle-name">-</div>
-            <div class="progress">
-              <div class="progress-track"><div class="progress-bar" id="progress-bar"></div></div>
-              <span class="progress-pct" id="progress-pct">0%</span>
-            </div>
-            <div class="counters">
-              <span class="cnt cnt-heart" id="heart-count">♥128</span>
-              <span class="cnt cnt-star" id="star-count">✦0まい</span>
-            </div>
-          </div>
-
-          <div class="speech-panel side-speech">
+        <div class="band-info">
+          <div class="speech-panel">
             <span class="speech-name">はぐれメイ</span>
             <span class="speech-text js-speech">いっしょに かこうね♦</span>
           </div>
-
-          <div class="cam-frame">
-            <span class="cam-horn" aria-hidden="true"></span>
-            <span class="cam-ear cam-ear-l" aria-hidden="true"></span>
-            <span class="cam-ear cam-ear-r" aria-hidden="true"></span>
-            <div class="cam-circle"><div class="cam-face js-face face-neutral" aria-hidden="true"></div></div>
-            <span class="cam-name">はぐれメイ</span>
+          <div class="progress">
+            <span class="puzzle-name" id="puzzle-name">-</span>
+            <div class="progress-track"><div class="progress-bar" id="progress-bar"></div></div>
+            <span class="progress-pct" id="progress-pct">0%</span>
           </div>
-        </aside>
+        </div>
       </div>
 
-      <div class="toolbar">
-        <button id="mode-fill" class="btn mode-btn active">■ ぬる</button>
-        <button id="mode-mark" class="btn mode-btn">✕ マーク</button>
-        <button id="reset-btn" class="btn btn-warn">やりなおし</button>
+      <!-- メインパネル -->
+      <div class="main-panel">
+        <span class="spark spark-tl" aria-hidden="true"></span>
+        <span class="spark spark-br" aria-hidden="true"></span>
+        <div class="board-plate">
+          <div class="board-wrap"><div id="board" class="board"></div></div>
+        </div>
       </div>
-      <button id="back-btn" class="btn btn-small back-btn">＜ かべへ もどる</button>
-      <p class="hint">左クリック=いまのモード ／ 右クリック・長押しで✕</p>
+
+      <!-- 下部固定ボタン帯 -->
+      <div class="toolbar-bar">
+        <div class="toolbar">
+          <button id="mode-fill" class="btn mode-btn active">■ ぬる</button>
+          <button id="mode-mark" class="btn mode-btn">✕ マーク</button>
+          <button id="reset-btn" class="btn btn-warn">やりなおし</button>
+        </div>
+        <div class="tool-foot">
+          <button id="back-btn" class="btn btn-small back-btn">＜ かべへ</button>
+          <span class="hint">ながおし で ✕マーク</span>
+        </div>
+      </div>
     </section>
 
     <!-- ===== クリア演出 ===== -->
