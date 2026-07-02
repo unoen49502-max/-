@@ -44,21 +44,7 @@ body {
   overflow-x: hidden;
 }
 
-/* 画面地：ユニコーン柄 1/3 タイル（透かしは opacity 一箇所） */
-.bg-screen {
-  position: fixed; inset: 0; z-index: -1; pointer-events: none;
-  /* タイルを小さくして、細い隙間や縁でも柄が見える密な壁紙に */
-  background: url("assets/bg_pattern_unicorn.png") 0 0 / 150px 150px repeat;
-  opacity: 0.85;
-}
-
-.app {
-  width: 100%; max-width: 440px; position: relative; z-index: 1;
-  /* パネルの周囲・隙間に必ず柄が見えるよう、枠自体にパターンを敷く */
-  background: url("assets/bg_pattern_unicorn.png") 0 0 / 96px 96px repeat;
-  border: 3px solid var(--crim_d);
-  padding: 14px;
-}
+.app { width: 100%; max-width: 440px; position: relative; z-index: 1; }
 
 /* ===== 文字（見出し=Melonano／本文=DotGothic16） ===== */
 .title, .screen-heading, .clear-title, .gh-title {
@@ -87,27 +73,18 @@ body {
 .face-shy     { background-position: 50% 100%; }
 .face-happy   { background-position: 100% 100%; }
 
-/* ===== カメラ円形フレーム（UI素材） ===== */
-.cam-frame { position: relative; width: 104px; flex: 0 0 auto; }
-.cam-frame.cam-sm { width: 96px; }
-.cam-frame.cam-band { width: 104px; }
-.cam-inner { position: relative; width: 100%; aspect-ratio: 568 / 660; }
+/* ===== カメラ円（シンプルなCSS枠） ===== */
+.cam-frame { position: relative; flex: 0 0 auto; }
+.cam-frame.cam-sm { width: 84px; }
+.cam-frame.cam-band { width: 88px; }
 .cam-circle {
-  position: absolute; left: 9.2%; top: 6.8%; width: 81.7%; aspect-ratio: 1 / 1;
-  border-radius: 50%; overflow: hidden; background: var(--bg); z-index: 1;
+  width: 100%; aspect-ratio: 1 / 1;
+  border-radius: 50%; overflow: hidden;
+  border: 4px solid var(--crim); box-shadow: 0 0 0 3px var(--crim_d);
+  background: var(--bg);
 }
 .cam-face { width: 100%; height: 100%; background-position: 0% 0%; }
-.cam-ovl {
-  position: absolute; inset: 0; z-index: 2; pointer-events: none;
-  background: url("assets/ui/cam-ring.png") center / contain no-repeat;
-}
-/* 6時リボン（ドット） */
-.cam-inner::after {
-  content: ""; position: absolute; top: 75%; left: 50%; transform: translateX(-50%);
-  width: 28%; aspect-ratio: 17 / 10; z-index: 3;
-  background: url("assets/deco/bow.png") center / contain no-repeat; image-rendering: pixelated;
-}
-.cam-name { display: block; text-align: center; margin-top: 4px; font-size: 14px; color: var(--crim); letter-spacing: 1px; }
+.cam-name { display: block; text-align: center; margin-top: 8px; font-size: 14px; color: var(--crim); letter-spacing: 1px; }
 
 /* ===== セリフパネル（名前ラベル内蔵・しっぽなし） ===== */
 .speech-panel {
@@ -168,32 +145,12 @@ body {
 .progress-bar { height: 100%; width: 0%; background: var(--crim); border-right: 2px solid var(--crim_l); transition: width 0.15s steps(4); }
 .progress-pct { font-size: 14px; color: var(--ink_l); min-width: 40px; text-align: right; }
 
-/* ===== 横長パネルをUI素材の枠(9スライス)に置換 ===== */
-.game-header, .speech-panel, .progress {
-  background: transparent;
-  border-style: solid; border-color: transparent;
-  border-width: 12px 9px 14px 17px;
-  border-image: url("assets/ui/panel-sparkle.png") 12 9 14 17 fill / 12px 9px 14px 17px / 0 round;
-  box-shadow: none;
-}
-.game-header { padding: 1px 4px; }
-.speech-panel, .progress { padding: 3px 6px; }
-
-/* ===== ゲーム：メインパネル ===== */
+/* ===== ゲーム：メインパネル（盤面） ===== */
 .main-panel {
-  position: relative;
-  background: linear-gradient(var(--room-ovl), var(--room-ovl)), url("assets/bg_room_stream.png") center / cover no-repeat;
-  border: 5px solid var(--crim); box-shadow: 0 0 0 3px var(--crim_d);
-  padding: 14px; margin-bottom: 14px;
+  background: var(--panel); border: 3px solid var(--crim); box-shadow: 0 0 0 3px var(--crim_d);
+  padding: 12px; margin-bottom: 14px;
 }
-.board-plate { background: var(--panel); border: 3px solid var(--crim); padding: 12px; }
 .board-wrap { display: flex; justify-content: center; overflow: auto; touch-action: none; }
-.spark {
-  position: absolute; width: 22px; height: 22px; z-index: 3;
-  background: url("assets/deco/spark.png") center/contain no-repeat; image-rendering: pixelated;
-}
-.spark-tl { top: -11px; left: -11px; }
-.spark-br { bottom: -11px; right: -11px; }
 
 /* ===== 盤面 ===== */
 .board {
