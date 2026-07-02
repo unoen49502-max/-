@@ -1,4 +1,9 @@
 /* ===== はぐれメイのドット工房 — スマホ主軸 (Design Guideline v1.4) ===== */
+@font-face {
+  font-family: "Melonano";
+  src: url("assets/fonts/Melonano.ttf") format("truetype");
+  font-display: swap;
+}
 
 :root {
   /* base */
@@ -43,27 +48,31 @@ body {
 .bg-screen {
   position: fixed; inset: 0; z-index: -1; pointer-events: none;
   background: url("assets/bg_pattern_unicorn.png") 0 0 / 418px 418px repeat;
-  opacity: 0.45;
+  opacity: 0.9;
 }
 
 .app { width: 100%; max-width: 440px; position: relative; z-index: 1; }
 
-/* ===== 文字 ===== */
+/* ===== 文字（見出し=Melonano／本文=DotGothic16） ===== */
+.title, .screen-heading, .clear-title, .gh-title {
+  font-family: "Melonano", "DotGothic16", sans-serif;
+}
 .titlebar { text-align: center; margin-bottom: 12px; }
-.title { font-size: 28px; letter-spacing: 2px; color: var(--crim); text-shadow: 3px 3px 0 var(--crim_d); }
+.title { font-size: 36px; letter-spacing: 2px; color: var(--crim); text-shadow: 3px 3px 0 var(--crim_d); }
 .screen-heading {
-  font-size: 20px; letter-spacing: 2px; color: var(--ink);
+  font-size: 24px; letter-spacing: 2px; color: var(--ink);
   margin: 8px 0 12px; text-align: center; text-shadow: 2px 2px 0 var(--panel2);
 }
 
 .hidden { display: none !important; }
 
-/* ===== 表情スプライト（1536×1024 / 3列2行・1面512） ===== */
+/* ===== 表情スプライト（3列2行・1面512） ===== */
 .face, .cam-face {
-  background-image: url("assets/char-faces.png");
   background-repeat: no-repeat; background-size: 300% 200%;
   image-rendering: pixelated;
 }
+.face { background-image: url("assets/char-faces.png"); }          /* 全身（クリア演出用） */
+.cam-face { background-image: url("assets/char-bust.png"); }        /* 顔アップ（カメラ枠） */
 .face-neutral { background-position: 0% 0%; }
 .face-cry     { background-position: 50% 0%; }
 .face-angry   { background-position: 100% 0%; }
@@ -83,23 +92,19 @@ body {
   background: var(--panel);
   overflow: hidden; position: relative;
 }
-.cam-face { width: 100%; height: 100%; background-position: 0% 0%; transform: scale(1.15) translateY(4%); }
+.cam-face { width: 100%; height: 100%; background-position: 0% 0%; }
 .cam-name { display: block; text-align: center; margin-top: 8px; font-size: 14px; color: var(--crim); letter-spacing: 1px; }
+/* 装飾はドットPNG（pixelated） */
 .cam-horn {
-  position: absolute; top: -13px; left: 50%; width: 15px; height: 24px; transform: translateX(-50%);
-  background: repeating-linear-gradient(180deg, var(--gold_l) 0 4px, var(--pink) 4px 8px, var(--crim) 8px 12px);
-  clip-path: polygon(50% 0, 100% 100%, 0 100%); z-index: 3;
+  position: absolute; top: -15px; left: 50%; width: 18px; height: 26px; transform: translateX(-50%);
+  background: url("assets/deco/horn.png") center/contain no-repeat; image-rendering: pixelated; z-index: 3;
 }
 .cam-ear {
-  position: absolute; top: 2px; width: 24px; height: 28px; background: var(--hair);
-  clip-path: polygon(50% 0, 100% 100%, 0 100%); z-index: 2;
+  position: absolute; top: -2px; width: 26px; height: 28px;
+  background: url("assets/deco/ear.png") center/contain no-repeat; image-rendering: pixelated; z-index: 2;
 }
-.cam-ear::before {
-  content: ""; position: absolute; left: 50%; top: 42%; width: 9px; height: 11px; transform: translateX(-50%);
-  background: var(--pink); clip-path: polygon(50% 0, 100% 100%, 0 100%);
-}
-.cam-ear-l { left: 2px; transform: rotate(-24deg); }
-.cam-ear-r { right: 2px; transform: rotate(24deg); }
+.cam-ear-l { left: 4px; transform: rotate(-20deg); }
+.cam-ear-r { right: 4px; transform: rotate(20deg) scaleX(-1); }
 
 /* ===== セリフパネル（名前ラベル内蔵・しっぽなし） ===== */
 .speech-panel {
@@ -170,12 +175,11 @@ body {
 .board-plate { background: var(--panel); border: 3px solid var(--crim); padding: 12px; }
 .board-wrap { display: flex; justify-content: center; overflow: auto; touch-action: none; }
 .spark {
-  position: absolute; width: 20px; height: 20px; z-index: 3; background: var(--gold);
-  clip-path: polygon(50% 0, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0 50%, 40% 40%);
+  position: absolute; width: 22px; height: 22px; z-index: 3;
+  background: url("assets/deco/spark.png") center/contain no-repeat; image-rendering: pixelated;
 }
-.spark::after { content: ""; position: absolute; inset: 38%; background: var(--gold_l); clip-path: polygon(50% 0, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0 50%, 40% 40%); }
-.spark-tl { top: -9px; left: -9px; }
-.spark-br { bottom: -9px; right: -9px; }
+.spark-tl { top: -11px; left: -11px; }
+.spark-br { bottom: -11px; right: -11px; }
 
 /* ===== 盤面 ===== */
 .board {
