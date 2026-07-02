@@ -1,353 +1,416 @@
-/* ===== Dot Picross - Memphis / 80s-90s pop theme ===== */
-@font-face {
-  font-family: "Melonano";
-  src: url("assets/fonts/Melonano.ttf") format("truetype");
-  font-display: swap;
-}
-@font-face {
-  font-family: "MPlusRounded";
-  src: url("assets/fonts/MPLUSRounded1c-Bold.ttf") format("truetype");
-  font-weight: 700;
-  font-display: swap;
-}
+/* ===== はぐれメイのドット工房 — 配信オーバーレイ (Design Guideline v1.3) ===== */
 
 :root {
-  --magenta: #cf3a7d;
-  --magenta-deep: #a82a63;
-  --cyan: #3fc5d6;
-  --yellow: #ffd63d;
-  --purple: #a86fd6;
-  --coral: #ff7a6b;
-  --ink: #1c1c40;
-  --paper: #fbf5ec;
-  --paper-2: #ffffff;
-  --tile: #ffffff;
-  --tile-line: #e6d9c8;
-  --filled: #1c1c40;
-  --mark: #e0518a;
-  --good: #57b894;
-  --shadow: #1c1c40;
+  /* --- base --- */
+  --bg: #281828;
+  --bg_d: #1e1220;
+  --panel: #f8d8d0;
+  --panel2: #f0c4bc;
+  --ink: #402438;
+  --ink_l: #7a4a60;
+  /* --- 枠・アクセント --- */
+  --crim: #a02850;
+  --crim_d: #582038;
+  --crim_l: #d87888;
+  --pink: #e898a0;
+  --rose: #c04868;
+  --gold: #e89040;
+  --gold_l: #f8c060;
+  /* --- 盤面 --- */
+  --grid: #d8ac9f;
+  --done: #96684a;
+  --highlight: #ffe8d0;
+  --white: #fff4ee;
+  --hair: #201828;
+  /* --- 背景合成 (§5-1b) --- */
+  --bg_screen: #fdcdd5;
+  --room-ovl: rgba(248, 216, 208, 0.12);
+  --scrim: rgba(30, 18, 32, 0.74);
+  /* --- units --- */
+  --u: 4px;
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
 html, body {
   min-height: 100%;
-  background: var(--magenta);
+  background: var(--bg_screen);
   color: var(--ink);
-  font-family: "MPlusRounded", "Hiragino Maru Gothic ProN", "Yu Gothic", system-ui, sans-serif;
-  font-weight: 700;
+  font-family: "DotGothic16", "Hiragino Kaku Gothic ProN", monospace;
+  image-rendering: pixelated;
 }
 
 body {
   display: flex;
   justify-content: center;
   align-items: flex-start;
-  padding: 22px 12px 70px;
+  padding: 16px 10px 64px;
   position: relative;
   overflow-x: hidden;
-  background:
-    radial-gradient(circle at 12% 18%, rgba(255,255,255,0.06) 0 6px, transparent 7px),
-    radial-gradient(circle at 82% 42%, rgba(255,255,255,0.05) 0 5px, transparent 6px),
-    radial-gradient(circle at 60% 88%, rgba(255,255,255,0.05) 0 5px, transparent 6px),
-    linear-gradient(160deg, #d8407f 0%, #c7336f 100%);
-  background-attachment: fixed;
 }
 
-/* ===== 背景装飾（メンフィス・シェイプ） ===== */
-.decor { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
-.shape { position: absolute; }
-.tri-cyan, .tri-yellow, .tri-outline {
-  width: 0; height: 0; border-style: solid;
-}
-.tri-cyan {
-  top: 8%; left: 4%;
-  border-width: 0 34px 58px 34px;
-  border-color: transparent transparent var(--cyan) transparent;
-  transform: rotate(-18deg);
-  filter: drop-shadow(3px 3px 0 var(--ink));
-}
-.tri-yellow {
-  bottom: 12%; right: 6%;
-  border-width: 58px 34px 0 34px;
-  border-color: var(--yellow) transparent transparent transparent;
-  transform: rotate(14deg);
-  filter: drop-shadow(3px 3px 0 var(--ink));
-}
-.tri-outline {
-  top: 46%; right: 3%;
-  border-width: 0 26px 46px 26px;
-  border-color: transparent transparent var(--ink) transparent;
-  transform: rotate(24deg);
-  opacity: 0.7;
-}
-.dot-purple, .dot-coral, .dot-yellow {
-  border-radius: 50%; border: 3px solid var(--ink);
-}
-.dot-purple {
-  top: 6%; right: 10%; width: 56px; height: 56px;
-  background: var(--purple);
-  background-image: radial-gradient(var(--ink) 1.6px, transparent 1.8px);
-  background-size: 10px 10px;
-  box-shadow: 4px 4px 0 var(--shadow);
-}
-.dot-coral {
-  bottom: 8%; left: 8%; width: 46px; height: 46px;
-  background: var(--coral);
-  box-shadow: 4px 4px 0 var(--shadow);
-}
-.dot-yellow {
-  top: 70%; left: 3%; width: 30px; height: 30px;
-  background: var(--yellow);
-}
-.sq-cyan, .sq-purple {
-  border: 3px solid var(--ink);
-}
-.sq-cyan {
-  top: 30%; left: 6%; width: 26px; height: 26px;
-  background: var(--cyan); transform: rotate(20deg);
-  box-shadow: 3px 3px 0 var(--shadow);
-}
-.sq-purple {
-  bottom: 30%; right: 8%; width: 22px; height: 22px;
-  background: var(--purple); transform: rotate(-15deg);
-}
-.zig-yellow {
-  top: 22%; right: 22%;
-  width: 70px; height: 14px;
-  background:
-    linear-gradient(45deg, var(--yellow) 25%, transparent 25%) 0 0/14px 14px,
-    linear-gradient(-45deg, var(--yellow) 25%, transparent 25%) 0 0/14px 14px;
-  filter: drop-shadow(2px 2px 0 var(--ink));
-  transform: rotate(-8deg);
-  opacity: 0.9;
+/* 画面地：ユニコーン柄を1/3スケールで敷き、opacity一箇所で透かし調整 */
+.bg-screen {
+  position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  background: url("assets/bg_pattern_unicorn.png") 0 0 / 418px 418px repeat;
+  opacity: 0.45;
 }
 
-/* ===== メインカード ===== */
-.app {
-  width: 100%;
-  max-width: 500px;
-  position: relative;
-  z-index: 1;
-  background: var(--paper);
-  border: 4px solid var(--ink);
-  border-radius: 18px;
-  box-shadow: 10px 10px 0 var(--shadow);
-  padding: 18px 16px 20px;
-}
+.app { width: 100%; max-width: 720px; position: relative; z-index: 1; }
 
-/* ===== Title ===== */
-.titlebar { text-align: center; margin-bottom: 16px; }
+/* ===== タイトル ===== */
+.titlebar { text-align: center; margin-bottom: 14px; }
 .title {
-  font-family: "Melonano", "MPlusRounded", sans-serif;
-  font-size: 42px; letter-spacing: 1px; line-height: 1;
-  color: var(--magenta);
-  text-shadow: 3px 3px 0 var(--ink);
-}
-.subtitle {
-  margin-top: 8px; font-size: 12px; letter-spacing: 3px;
-  color: var(--ink);
-  display: inline-block;
-  background: var(--yellow);
-  border: 3px solid var(--ink);
-  border-radius: 20px;
-  padding: 4px 14px;
-  box-shadow: 3px 3px 0 var(--shadow);
+  font-size: 36px; letter-spacing: 2px; color: var(--crim);
+  text-shadow: 3px 3px 0 var(--crim_d);
 }
 
-/* ===== 汎用パネル ===== */
+/* ===== 汎用パネル枠（外周crim_d + 主枠crim） ===== */
+.panel-frame {
+  background: var(--panel);
+  border: 3px solid var(--crim);
+  box-shadow: 0 0 0 3px var(--crim_d);
+}
+
 .hidden { display: none !important; }
+
 .screen-heading {
-  font-family: "Melonano", "MPlusRounded", sans-serif;
   font-size: 20px; letter-spacing: 2px; color: var(--ink);
-  margin: 2px 0 14px; text-align: center;
-}
-.screen-heading::before { content: "▶ "; color: var(--cyan); }
-.screen-heading::after { content: " ◀"; color: var(--coral); }
-
-/* ===== キャラ立ち絵（あいさつ） ===== */
-.greeter { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
-.char-stand {
-  flex: 0 0 auto; width: 96px; height: 96px;
-  background: url("assets/char-stand.png") center/135% no-repeat, var(--purple);
-  border: 4px solid var(--ink); border-radius: 14px;
-  box-shadow: 5px 5px 0 var(--shadow);
-  image-rendering: pixelated;
-}
-.speech {
-  position: relative; flex: 1 1 auto;
-  background: var(--paper-2); color: var(--ink);
-  border: 3px solid var(--ink); border-radius: 14px;
-  padding: 10px 12px; box-shadow: 4px 4px 0 var(--shadow);
-}
-.speech::before {
-  content: ""; position: absolute; left: -13px; top: 22px;
-  border: 7px solid transparent; border-right-color: var(--ink);
-}
-.speech-name { font-size: 12px; letter-spacing: 1px; color: var(--magenta); margin-bottom: 3px; }
-.speech-name::before { content: "★ "; color: var(--yellow); -webkit-text-stroke: 0; }
-.speech-text { font-size: 15px; letter-spacing: 1px; }
-
-/* ===== Puzzle select ===== */
-.puzzle-list {
-  display: grid; grid-template-columns: repeat(auto-fill, minmax(136px, 1fr)); gap: 12px;
-}
-.puzzle-card {
-  background: var(--paper-2); border: 3px solid var(--ink); border-radius: 14px;
-  padding: 12px 10px; cursor: pointer; text-align: center;
-  transition: transform 0.06s, box-shadow 0.06s;
-  box-shadow: 5px 5px 0 var(--shadow);
-}
-.puzzle-card:nth-child(3n+1) { background: #fff; }
-.puzzle-card:hover { transform: translate(-2px,-2px); box-shadow: 7px 7px 0 var(--shadow); }
-.puzzle-card:active { transform: translate(3px,3px); box-shadow: 2px 2px 0 var(--shadow); }
-.puzzle-card .pc-name { font-size: 15px; color: var(--ink); letter-spacing: 1px; margin-bottom: 6px; }
-.puzzle-card .pc-size {
-  display: inline-block; font-size: 11px; color: var(--ink);
-  background: var(--cyan); border: 2px solid var(--ink); border-radius: 10px; padding: 1px 8px;
-}
-.puzzle-card.solved { background: #eafaf3; border-color: var(--good); }
-.puzzle-card .pc-clear { display: block; margin-top: 6px; font-size: 11px; color: var(--good); letter-spacing: 1px; }
-.puzzle-card .pc-clear::before { content: "✔ "; }
-.puzzle-card .pc-diff { margin-top: 6px; font-size: 13px; letter-spacing: 2px; }
-.diff-1 { color: var(--good); }
-.diff-2 { color: var(--magenta); }
-.diff-3 { color: var(--coral); }
-
-/* ===== Game top bar ===== */
-.game-topbar { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 14px; }
-.face-chip {
-  width: 54px; height: 54px; flex: 0 0 auto;
-  border: 3px solid var(--ink); border-radius: 12px;
-  background: var(--cyan); overflow: hidden; box-shadow: 3px 3px 0 var(--shadow);
-  image-rendering: pixelated;
-}
-.game-info { display: flex; flex-direction: column; align-items: flex-end; gap: 3px; }
-.puzzle-name {
-  font-size: 14px; color: var(--ink); letter-spacing: 1px;
-  background: var(--yellow); border: 2px solid var(--ink); border-radius: 10px; padding: 1px 10px;
-}
-.timer {
-  font-size: 13px; color: var(--ink);
-  background: var(--paper-2); border: 2px solid var(--ink); border-radius: 10px; padding: 1px 10px;
+  margin: 6px 0 14px; text-align: center;
+  text-shadow: 2px 2px 0 var(--panel2);
 }
 
-/* ===== 表情スプライトシート ===== */
-.face {
+/* ===== カメラ円形フレーム ===== */
+.cam-frame { position: relative; width: 128px; margin: 0 auto; flex: 0 0 auto; }
+.cam-frame.cam-sm { width: 96px; }
+.cam-circle {
+  width: 100%; aspect-ratio: 1 / 1;
+  border-radius: 50%;
+  border: 5px solid var(--crim);
+  box-shadow: 0 0 0 4px var(--crim_d);
+  background: var(--panel);
+  overflow: hidden;
+  position: relative;
+}
+.cam-face {
   width: 100%; height: 100%;
   background-image: url("assets/char-faces.png");
-  background-repeat: no-repeat; background-size: 300% 200%;
+  background-repeat: no-repeat;
+  background-size: 300% 200%;
+  background-position: 0% 0%;
+  transform: scale(1.15) translateY(4%);
   image-rendering: pixelated;
 }
+.cam-name {
+  display: block; text-align: center; margin-top: 8px;
+  font-size: 14px; color: var(--crim); letter-spacing: 1px;
+}
+/* 12時：ユニコーン角（縞入り） */
+.cam-horn {
+  position: absolute; top: -14px; left: 50%; width: 16px; height: 26px;
+  transform: translateX(-50%);
+  background: repeating-linear-gradient(180deg,
+    var(--gold_l) 0 4px, var(--pink) 4px 8px, var(--crim) 8px 12px);
+  clip-path: polygon(50% 0, 100% 100%, 0 100%);
+  z-index: 3;
+}
+/* 10時/2時：黒耳（pink内耳） */
+.cam-ear {
+  position: absolute; top: 2px; width: 26px; height: 30px;
+  background: var(--hair);
+  clip-path: polygon(50% 0, 100% 100%, 0 100%);
+  z-index: 2;
+}
+.cam-ear::before {
+  content: ""; position: absolute; left: 50%; top: 40%; width: 10px; height: 12px;
+  transform: translateX(-50%);
+  background: var(--pink);
+  clip-path: polygon(50% 0, 100% 100%, 0 100%);
+}
+.cam-ear-l { left: 4px; transform: rotate(-24deg); }
+.cam-ear-r { right: 4px; transform: rotate(24deg); }
+
+/* ===== セリフパネル（名前ラベル内蔵・しっぽなし） ===== */
+.speech-panel {
+  flex: 1 1 auto;
+  background: var(--panel);
+  border: 3px solid var(--crim);
+  box-shadow: 0 0 0 3px var(--crim_d);
+  padding: 10px 12px;
+}
+.speech-name {
+  display: inline-block; font-size: 13px; color: var(--white);
+  background: var(--crim); padding: 1px 10px; margin-bottom: 6px;
+}
+.speech-text { display: block; font-size: 16px; color: var(--ink); line-height: 1.4; }
+
+/* ===== セレクト画面（工房の壁） ===== */
+.greeter { display: flex; align-items: center; gap: 14px; margin-bottom: 18px; }
+
+.puzzle-list {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 14px;
+}
+.puzzle-card {
+  background: var(--panel);
+  border: 3px solid var(--crim);
+  box-shadow: 0 0 0 3px var(--crim_d);
+  padding: 12px 10px; cursor: pointer; text-align: center;
+  transition: transform 0.05s steps(1);
+}
+.puzzle-card:hover { transform: translate(-2px, -2px); }
+.puzzle-card:active { transform: translate(2px, 2px); }
+.puzzle-card .pc-name { font-size: 16px; color: var(--ink); margin-bottom: 6px; }
+.puzzle-card .pc-size {
+  display: inline-block; font-size: 12px; color: var(--white);
+  background: var(--rose); border: 2px solid var(--crim_d); padding: 0 8px;
+}
+.puzzle-card.solved { border-color: var(--gold); }
+.puzzle-card .pc-clear { display: block; margin-top: 6px; font-size: 12px; color: var(--crim); letter-spacing: 1px; }
+.puzzle-card .pc-clear::before { content: "✦ "; color: var(--gold); }
+.puzzle-card .pc-diff { margin-top: 6px; font-size: 14px; letter-spacing: 3px; color: var(--ink_l); }
+.puzzle-card .pc-diff .on { color: var(--crim); }
+.pc-thumb {
+  display: grid; width: 68px; margin: 0 auto 8px;
+  background: var(--panel2); border: 2px solid var(--crim_d);
+  image-rendering: pixelated;
+}
+.pc-thumb .t-cell { width: 100%; aspect-ratio: 1 / 1; }
+.pc-thumb .t-on { background: var(--ink); }
+.pc-thumb .t-off { background: var(--panel); }
+.pc-thumb-q {
+  display: flex; align-items: center; justify-content: center;
+  width: 68px; height: 68px; font-size: 34px; color: var(--ink_l);
+}
+
+/* ===== ゲーム画面レイアウト ===== */
+.overlay-grid { display: grid; grid-template-columns: 1fr; gap: 14px; }
+
+/* メイン大パネル（部屋背景 + 盤面プレート） */
+.main-panel {
+  position: relative;
+  background:
+    linear-gradient(var(--room-ovl), var(--room-ovl)),
+    url("assets/bg_room_stream.png") center / cover no-repeat;
+  border: 6px solid var(--crim);
+  box-shadow: 0 0 0 3px var(--crim_d);
+  padding: 20px 16px 16px;
+}
+/* 盤面プレート：完全不透明 */
+.board-plate {
+  background: var(--panel);
+  border: 3px solid var(--crim);
+  padding: 14px;
+}
+.board-wrap { display: flex; justify-content: center; overflow: auto; }
+
+/* 上辺中央ユニコーン角 */
+.panel-horn {
+  position: absolute; top: -16px; left: 50%; width: 20px; height: 30px;
+  transform: translateX(-50%);
+  background: repeating-linear-gradient(180deg,
+    var(--gold_l) 0 4px, var(--pink) 4px 9px, var(--crim) 9px 14px);
+  clip-path: polygon(50% 0, 100% 100%, 0 100%);
+  z-index: 3;
+}
+/* 対角2点スパークル */
+.spark {
+  position: absolute; width: 22px; height: 22px; z-index: 3;
+  background: var(--gold);
+  clip-path: polygon(50% 0, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0 50%, 40% 40%);
+}
+.spark::after {
+  content: ""; position: absolute; inset: 38%; background: var(--gold_l);
+  clip-path: polygon(50% 0, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0 50%, 40% 40%);
+}
+.spark-tl { top: -10px; left: -10px; }
+.spark-br { bottom: -10px; right: -10px; }
+/* パネル内四隅の小十字 */
+.corner-cross {
+  position: absolute; width: 10px; height: 10px; z-index: 3;
+  background:
+    linear-gradient(var(--pink) 0 0) center / 100% 3px no-repeat,
+    linear-gradient(var(--pink) 0 0) center / 3px 100% no-repeat;
+}
+.cc-tl { top: 8px; left: 8px; }
+.cc-tr { top: 8px; right: 8px; }
+.cc-bl { bottom: 8px; left: 8px; }
+.cc-br { bottom: 8px; right: 8px; }
+
+/* 点線セパレータ（PCのみ） */
+.sep { display: none; }
+
+/* 右カラム */
+.side { display: flex; flex-direction: column; gap: 14px; }
+.info-panel {
+  background: var(--panel);
+  border: 3px solid var(--crim);
+  box-shadow: 0 0 0 3px var(--crim_d);
+  padding: 12px;
+}
+.logo { font-size: 15px; color: var(--crim); letter-spacing: 1px; margin-bottom: 8px; }
+.info-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 8px; }
+.live-badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 13px; color: var(--white); background: var(--crim);
+  padding: 2px 9px;
+}
+.live-dot {
+  width: 8px; height: 8px; background: var(--white); border-radius: 50%;
+  animation: liveblink 1000ms steps(1) infinite;
+}
+@keyframes liveblink { 0% { opacity: 1; } 50% { opacity: 0.12; } 100% { opacity: 1; } }
+.timer { font-size: 16px; color: var(--ink); }
+.puzzle-name {
+  font-size: 15px; color: var(--ink); margin-bottom: 8px;
+  background: var(--panel2); padding: 2px 8px;
+}
+.progress { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.progress-track {
+  flex: 1 1 auto; height: 14px; background: var(--panel2);
+  border: 2px solid var(--crim_d); overflow: hidden;
+}
+.progress-bar {
+  height: 100%; width: 0%; background: var(--crim);
+  border-right: 2px solid var(--crim_l);
+  transition: width 0.15s steps(4);
+}
+.progress-pct { font-size: 13px; color: var(--ink_l); min-width: 34px; text-align: right; }
+.counters { display: flex; gap: 10px; font-size: 13px; }
+.cnt-heart { color: var(--crim); }
+.cnt-star { color: var(--gold); }
+
+.side-speech { flex: 0 0 auto; }
+
+/* ===== 盤面 ===== */
+.board {
+  display: grid;
+  background: var(--ink);
+  border: 3px solid var(--ink);
+  user-select: none; touch-action: none;
+}
+.b-corner { background: var(--panel); }
+.b-cluecol, .b-cluerow {
+  background: var(--panel); color: var(--ink);
+  display: flex; font-size: 13px; line-height: 1.1;
+}
+.b-cluecol { flex-direction: column; justify-content: flex-end; align-items: center; padding-bottom: 3px; gap: 1px; border-left: 1px solid var(--grid); }
+.b-cluerow { flex-direction: row; justify-content: flex-end; align-items: center; padding-right: 5px; gap: 4px; border-top: 1px solid var(--grid); }
+.b-cluecol.grp-edge { border-left: 3px solid var(--ink); }
+.b-cluerow.grp-edge { border-top: 3px solid var(--ink); }
+.b-cluecol.hl, .b-cluerow.hl { background: var(--highlight); }
+.clue-done { color: var(--done); text-decoration: line-through; text-decoration-thickness: 2px; }
+
+.cell {
+  background: var(--white);
+  border-top: 1px solid var(--grid);
+  border-left: 1px solid var(--grid);
+  cursor: pointer; position: relative;
+}
+.cell.grp-left { border-left: 3px solid var(--ink); }
+.cell.grp-top { border-top: 3px solid var(--ink); }
+.cell.hl:not(.filled) { background: var(--highlight); }
+.cell.filled { background: var(--filled, var(--ink)); }
+.cell.pop { animation: fillpop 200ms steps(1) 1; }
+@keyframes fillpop { 0% { background: var(--white); } 50% { background: var(--crim_l); } 100% { background: var(--ink); } }
+
+.cell.marked::before, .cell.marked::after {
+  content: ""; position: absolute; top: 50%; left: 50%;
+  width: 66%; height: 3px; background: var(--crim); transform-origin: center;
+}
+.cell.marked::before { transform: translate(-50%, -50%) rotate(45deg); }
+.cell.marked::after  { transform: translate(-50%, -50%) rotate(-45deg); }
+.cell.mark-pop { animation: xbounce 120ms steps(2) 1; }
+@keyframes xbounce { 0% { transform: scale(1.35); } 100% { transform: scale(1); } }
+
+/* クリア演出：✕・ヒントをフェードアウト */
+.board.clearing .cell.marked::before,
+.board.clearing .cell.marked::after { display: none; }
+.board.clearing .b-cluecol,
+.board.clearing .b-cluerow { color: transparent; transition: color 0.3s steps(3); }
+
+/* クリア演出：着色リビール */
+.cell.reveal { animation: revealpop 240ms steps(1) 1; }
+@keyframes revealpop { 0% { background: var(--gold_l); } 50% { background: var(--gold); } 100% { background: var(--ink); } }
+
+/* ===== ボタン ===== */
+.btn {
+  font-family: inherit; font-size: 15px; letter-spacing: 1px; color: var(--ink);
+  background: var(--panel);
+  border: 3px solid var(--crim);
+  box-shadow: 0 0 0 3px var(--crim_d);
+  padding: 9px 14px; min-height: 46px; cursor: pointer;
+}
+.btn:active { box-shadow: none; transform: translate(4px, 4px); }
+.btn-small { font-size: 13px; min-height: 40px; padding: 6px 12px; }
+.back-btn { display: block; margin: 12px auto 0; }
+
+.toolbar { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-top: 14px; }
+.mode-btn.active { background: var(--crim); color: var(--white); }
+.btn-warn { background: var(--panel); color: var(--crim); }
+#clear-next { background: var(--crim); color: var(--white); }
+
+.hint { text-align: center; margin-top: 12px; font-size: 12px; color: var(--ink_l); letter-spacing: 1px; }
+
+/* ===== クリア画面 ===== */
+.overlay {
+  position: fixed; inset: 0; background: var(--scrim);
+  display: flex; justify-content: center; align-items: center; z-index: 1000; padding: 16px;
+  overflow: hidden;
+}
+.clear-box {
+  position: relative; z-index: 2;
+  background: var(--panel); color: var(--ink);
+  border: 6px solid var(--crim);
+  box-shadow: 0 0 0 3px var(--crim_d);
+  padding: 22px 26px; text-align: center; max-width: 92vw;
+  animation: dropin 260ms steps(4) 1;
+}
+@keyframes dropin { 0% { transform: translateY(-40px); } 100% { transform: translateY(0); } }
+.big-face {
+  width: 96px; height: 96px; margin: 0 auto 10px;
+  border: 4px solid var(--crim); box-shadow: 0 0 0 3px var(--crim_d);
+  background-color: var(--panel);
+  background-image: url("assets/char-faces.png");
+  background-repeat: no-repeat; background-size: 300% 200%;
+}
+.clear-title { font-size: 32px; letter-spacing: 2px; color: var(--crim); text-shadow: 3px 3px 0 var(--crim_d); margin-bottom: 12px; }
+.clear-art { display: grid; margin: 0 auto 12px; background: var(--ink); border: 3px solid var(--ink); width: fit-content; }
+.clear-art .ca-cell { width: 11px; height: 11px; }
+.clear-art .ca-on { background: var(--crim); }
+.clear-art .ca-off { background: var(--panel2); }
+.clear-msg { font-size: 16px; color: var(--ink); margin-bottom: 8px; }
+.clear-time {
+  font-size: 15px; color: var(--ink); margin-bottom: 16px;
+  display: inline-block; background: var(--panel2); padding: 3px 12px;
+}
+
+/* 紙吹雪 */
+.confetti { position: absolute; inset: 0; z-index: 1; pointer-events: none; }
+.confetti i { position: absolute; top: -16px; width: 8px; height: 8px; display: block; }
+@keyframes fall { 0% { transform: translateY(-20px); } 100% { transform: translateY(105vh); } }
+
+/* ===== 表情スプライト（共通クラス） ===== */
 .face-neutral { background-position: 0% 0%; }
 .face-cry     { background-position: 50% 0%; }
 .face-angry   { background-position: 100% 0%; }
 .face-shock   { background-position: 0% 100%; }
 .face-shy     { background-position: 50% 100%; }
 .face-happy   { background-position: 100% 100%; }
+.face { background-image: url("assets/char-faces.png"); background-repeat: no-repeat; background-size: 300% 200%; image-rendering: pixelated; }
 
-/* ===== Board ===== */
-.board-wrap {
-  display: flex; justify-content: center; margin-bottom: 16px; overflow: auto;
-  background: var(--paper-2);
-  border: 3px solid var(--ink); border-radius: 14px;
-  padding: 10px; box-shadow: inset 3px 3px 0 rgba(28,28,64,0.08);
-}
-.board {
-  display: grid;
-  background: var(--ink);
-  border: 3px solid var(--ink); border-radius: 4px;
-  user-select: none; touch-action: none;
-}
-.b-corner { background: var(--paper); }
-.b-cluecol, .b-cluerow {
-  background: var(--paper); color: var(--ink);
-  display: flex; font-size: 12px; line-height: 1.15;
-}
-.b-cluecol { flex-direction: column; justify-content: flex-end; align-items: center; padding-bottom: 3px; gap: 1px; border-left: 1px solid #e0d3c0; }
-.b-cluerow { flex-direction: row; justify-content: flex-end; align-items: center; padding-right: 5px; gap: 4px; border-top: 1px solid #e0d3c0; }
-.b-cluecol.grp-edge { border-left: 2px solid var(--magenta); }
-.b-cluerow.grp-edge { border-top: 2px solid var(--magenta); }
-.clue-done { color: #b7a992; }
-
-.cell {
-  background: var(--tile);
-  border-top: 1px solid var(--tile-line);
-  border-left: 1px solid var(--tile-line);
-  cursor: pointer; position: relative;
-}
-.cell.grp-left { border-left: 2px solid #cbb89f; }
-.cell.grp-top { border-top: 2px solid #cbb89f; }
-.cell.filled { background: var(--filled); }
-.cell.marked::before, .cell.marked::after {
-  content: ""; position: absolute; top: 50%; left: 50%;
-  width: 66%; height: 2px; background: var(--mark); transform-origin: center;
-}
-.cell.marked::before { transform: translate(-50%,-50%) rotate(45deg); }
-.cell.marked::after  { transform: translate(-50%,-50%) rotate(-45deg); }
-
-/* ===== Buttons ===== */
-.btn {
-  font-family: "MPlusRounded", sans-serif; font-weight: 700;
-  font-size: 14px; letter-spacing: 1px; color: var(--ink);
-  background: var(--paper-2);
-  border: 3px solid var(--ink); border-radius: 12px;
-  padding: 9px 14px; min-height: 46px; cursor: pointer;
-  box-shadow: 4px 4px 0 var(--shadow);
-  transition: transform 0.05s, box-shadow 0.05s;
-}
-.btn:hover { filter: brightness(1.02); }
-.btn:active { transform: translate(4px,4px); box-shadow: 0 0 0 var(--shadow); }
-.btn-small { font-size: 12px; min-height: 40px; padding: 6px 12px; box-shadow: 3px 3px 0 var(--shadow); }
-
-.toolbar { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
-.mode-btn { background: var(--paper-2); }
-.mode-btn.active { background: var(--cyan); }
-.btn-warn { background: var(--coral); }
-#clear-next { background: var(--yellow); }
-
-.hint { text-align: center; margin-top: 12px; font-size: 12px; color: var(--magenta-deep); letter-spacing: 1px; }
-
-/* ===== Clear overlay ===== */
-.overlay {
-  position: fixed; inset: 0;
-  background: rgba(28,28,64,0.6);
-  display: flex; justify-content: center; align-items: center; z-index: 1000; padding: 16px;
-}
-.clear-box {
-  position: relative;
-  background: var(--paper); color: var(--ink);
-  border: 4px solid var(--ink); border-radius: 20px;
-  box-shadow: 10px 10px 0 var(--shadow);
-  padding: 22px 26px; text-align: center; max-width: 92vw;
-  animation: pop 0.25s ease-out;
-}
-@keyframes pop { 0% { transform: scale(0.7) rotate(-2deg); opacity: 0; } 100% { transform: scale(1) rotate(0); opacity: 1; } }
-.big-face {
-  width: 94px; height: 94px; margin: 0 auto 10px;
-  border: 4px solid var(--ink); border-radius: 14px; background-color: var(--cyan);
-  box-shadow: 4px 4px 0 var(--shadow);
-}
-.clear-title {
-  font-family: "Melonano", "MPlusRounded", sans-serif;
-  font-size: 34px; letter-spacing: 2px; color: var(--magenta);
-  text-shadow: 3px 3px 0 var(--ink);
-  margin-bottom: 14px;
-}
-.clear-art { display: grid; margin: 0 auto 14px; background: var(--ink); border: 3px solid var(--ink); border-radius: 4px; width: fit-content; }
-.clear-art .ca-cell { width: 11px; height: 11px; }
-.clear-art .ca-on { background: var(--yellow); }
-.clear-art .ca-off { background: #33335c; }
-.clear-time {
-  font-size: 14px; color: var(--ink); letter-spacing: 1px; margin-bottom: 16px;
-  display: inline-block; background: var(--paper-2); border: 2px solid var(--ink);
-  border-radius: 10px; padding: 3px 12px;
+/* ===== PC向け 2カラム ===== */
+@media (min-width: 760px) {
+  .overlay-grid { grid-template-columns: 1fr 16px 232px; align-items: start; }
+  .sep {
+    display: block; align-self: stretch; width: 16px;
+    background:
+      repeating-linear-gradient(180deg, var(--rose) 0 8px, transparent 8px 20px) center / 4px 100% no-repeat;
+  }
 }
 
+/* ===== モバイル ===== */
 @media (max-width: 480px) {
-  .title { font-size: 34px; }
-  .app { padding: 14px 12px 16px; box-shadow: 7px 7px 0 var(--shadow); }
-  .char-stand { width: 84px; height: 84px; }
-  .b-cluecol, .b-cluerow, .b-corner { font-size: 10px; }
-  .zig-yellow, .tri-outline { display: none; }
+  .title { font-size: 28px; }
+  .b-cluecol, .b-cluerow, .b-corner { font-size: 11px; }
+  .spark-tl, .spark-br { width: 16px; height: 16px; }
 }
