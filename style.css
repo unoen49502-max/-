@@ -93,14 +93,19 @@ body {
 .cam-frame.cam-band { width: 104px; }
 .cam-inner { position: relative; width: 100%; aspect-ratio: 568 / 660; }
 .cam-circle {
-  position: absolute; left: 8.1%; top: 5.9%; width: 83.8%; aspect-ratio: 1 / 1;
-  border-radius: 50%; overflow: hidden; background: var(--panel); z-index: 1;
+  position: absolute; left: 9.2%; top: 6.8%; width: 81.7%; aspect-ratio: 1 / 1;
+  border-radius: 50%; overflow: hidden; background: var(--bg); z-index: 1;
 }
 .cam-face { width: 100%; height: 100%; background-position: 0% 0%; }
 .cam-ovl {
   position: absolute; inset: 0; z-index: 2; pointer-events: none;
-  background: url("assets/ui/cam-frame.png") center / contain no-repeat;
-  image-rendering: pixelated;
+  background: url("assets/ui/cam-ring.png") center / contain no-repeat;
+}
+/* 6時リボン（ドット） */
+.cam-inner::after {
+  content: ""; position: absolute; top: 75%; left: 50%; transform: translateX(-50%);
+  width: 28%; aspect-ratio: 17 / 10; z-index: 3;
+  background: url("assets/deco/bow.png") center / contain no-repeat; image-rendering: pixelated;
 }
 .cam-name { display: block; text-align: center; margin-top: 4px; font-size: 14px; color: var(--crim); letter-spacing: 1px; }
 
@@ -166,12 +171,13 @@ body {
 /* ===== 横長パネルをUI素材の枠(9スライス)に置換 ===== */
 .game-header, .speech-panel, .progress {
   background: transparent;
-  border: 12px solid transparent;
-  border-image: url("assets/ui/panel-sparkle.png") 9 fill / 12px / 0 round;
+  border-style: solid; border-color: transparent;
+  border-width: 12px 9px 14px 17px;
+  border-image: url("assets/ui/panel-sparkle.png") 12 9 14 17 fill / 12px 9px 14px 17px / 0 round;
   box-shadow: none;
 }
-.game-header { padding: 2px 6px; }
-.speech-panel, .progress { padding: 4px 8px; }
+.game-header { padding: 1px 4px; }
+.speech-panel, .progress { padding: 3px 6px; }
 
 /* ===== ゲーム：メインパネル ===== */
 .main-panel {
