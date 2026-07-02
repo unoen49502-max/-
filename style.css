@@ -52,7 +52,13 @@ body {
   opacity: 0.85;
 }
 
-.app { width: 100%; max-width: 440px; position: relative; z-index: 1; }
+.app {
+  width: 100%; max-width: 440px; position: relative; z-index: 1;
+  /* パネルの周囲・隙間に必ず柄が見えるよう、枠自体にパターンを敷く */
+  background: url("assets/bg_pattern_unicorn.png") 0 0 / 96px 96px repeat;
+  border: 3px solid var(--crim_d);
+  padding: 14px;
+}
 
 /* ===== 文字（見出し=Melonano／本文=DotGothic16） ===== */
 .title, .screen-heading, .clear-title, .gh-title {
@@ -120,7 +126,7 @@ body {
 .greeter { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
 .greeter .cam-name { font-size: 12px; }
 
-.puzzle-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(132px, 1fr)); gap: 12px; }
+.puzzle-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(132px, 1fr)); gap: 14px; }
 .puzzle-card {
   background: var(--panel); border: 3px solid var(--crim); box-shadow: 0 0 0 3px var(--crim_d);
   padding: 10px; cursor: pointer; text-align: center;
@@ -143,7 +149,7 @@ body {
 .game-header {
   display: flex; align-items: center; justify-content: space-between; gap: 8px;
   background: var(--panel); border: 3px solid var(--crim); box-shadow: 0 0 0 3px var(--crim_d);
-  padding: 6px 10px; margin-bottom: 12px;
+  padding: 6px 10px; margin-bottom: 14px;
 }
 .gh-title { font-size: 16px; color: var(--crim); letter-spacing: 1px; }
 .gh-status { display: flex; align-items: center; gap: 8px; }
@@ -153,7 +159,7 @@ body {
 .timer { font-size: 16px; color: var(--ink); }
 
 /* ===== ゲーム：キャラ帯 ===== */
-.char-band { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 12px; }
+.char-band { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 14px; }
 .char-band .cam-name { font-size: 12px; margin-top: 6px; }
 .band-info { flex: 1 1 auto; display: flex; flex-direction: column; gap: 8px; min-width: 0; }
 .progress {
@@ -171,7 +177,7 @@ body {
   position: relative;
   background: linear-gradient(var(--room-ovl), var(--room-ovl)), url("assets/bg_room_stream.png") center / cover no-repeat;
   border: 5px solid var(--crim); box-shadow: 0 0 0 3px var(--crim_d);
-  padding: 14px; margin-bottom: 12px;
+  padding: 14px; margin-bottom: 14px;
 }
 .board-plate { background: var(--panel); border: 3px solid var(--crim); padding: 12px; }
 .board-wrap { display: flex; justify-content: center; overflow: auto; touch-action: none; }
