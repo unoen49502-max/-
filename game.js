@@ -26,6 +26,11 @@
   const progressPct = document.getElementById("progress-pct");
   const starCountEl = document.getElementById("star-count");
   const confettiEl = document.getElementById("confetti");
+  const menuOverlay = document.getElementById("menu-overlay");
+  const menuTitleBtn = document.getElementById("menu-title-btn");
+  const menuCloseBtn = document.getElementById("menu-close");
+  const ssMenuBtn = document.getElementById("ss-menu-btn");
+  const ghMenuBtn = document.getElementById("gh-menu-btn");
 
   // ===== キャラの表情・セリフ（配信リアクション） =====
   const FACE_CLASSES = ["face-neutral", "face-cry", "face-angry", "face-shock", "face-shy", "face-happy"];
@@ -693,6 +698,35 @@
   if (btnStart) btnStart.addEventListener("click", enterSelectFromTitle);
   // TODO: #gallery-screen 実装後に遷移先を差し替え。暫定で工房の壁へ。
   if (btnGallery) btnGallery.addEventListener("click", enterSelectFromTitle);
+
+  // ===== メインメニュー（右クリック／☰） =====
+  function openMenu() { if (menuOverlay) menuOverlay.classList.remove("hidden"); }
+  function closeMenu() { if (menuOverlay) menuOverlay.classList.add("hidden"); }
+  function goToTitle() {
+    closeMenu();
+    stopTimer();
+    if (idleId) clearTimeout(idleId);
+    paused = false; cleared = false;
+    board.classList.remove("paused", "clearing");
+    setPauseUI(false);
+    clearOverlay.classList.add("hidden");
+    gameScreen.classList.add("hidden");
+    selectScreen.classList.add("hidden");
+    if (titleScreen) titleScreen.classList.remove("hidden");
+    setFace("neutral");
+  }
+  if (ssMenuBtn) ssMenuBtn.addEventListener("click", openMenu);
+  if (ghMenuBtn) ghMenuBtn.addEventListener("click", openMenu);
+  if (menuCloseBtn) menuCloseBtn.addEventListener("click", closeMenu);
+  if (menuTitleBtn) menuTitleBtn.addEventListener("click", goToTitle);
+  if (menuOverlay) menuOverlay.addEventListener("click", e => { if (e.target === menuOverlay) closeMenu(); });
+  document.addEventListener("keydown", e => { if (e.key === "Escape") closeMenu(); });
+  // 右クリック：セレクト画面はどこでも／ゲーム画面は盤面以外でメニューを開く（盤面の右クリックは✕マーク）
+  selectScreen.addEventListener("contextmenu", e => { e.preventDefault(); openMenu(); });
+  gameScreen.addEventListener("contextmenu", e => {
+    if (e.target.closest && e.target.closest("#board")) return;
+    e.preventDefault(); openMenu();
+  });
 
   // ===== イベント登録 =====
   backBtn.addEventListener("click", backToSelect);

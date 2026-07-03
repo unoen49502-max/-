@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=9">
+  <link rel="stylesheet" href="style.css?v=10">
 </head>
 <body>
   <main class="app">
@@ -55,7 +55,7 @@
     <section id="select-screen" class="hidden">
       <div class="ss-statusbar">
         <div><span class="ss-dot">●</span>OFFLINE</div>
-        <div>まもなく かいてん…</div>
+        <div class="ss-bar-right">まもなく かいてん…<button id="ss-menu-btn" class="menu-btn" aria-label="メニュー">☰ メニュー</button></div>
       </div>
 
       <div class="ss-greet">
@@ -85,6 +85,7 @@
         <span class="gh-right">
           <span class="gh-live"><span class="gh-ld"></span>LIVE</span>
           <span class="gh-timer"><span class="gh-clk">◷</span><span id="timer">00:00</span></span>
+          <button id="gh-menu-btn" class="menu-btn gh-menu-btn" aria-label="メニュー">☰</button>
         </span>
       </div>
 
@@ -147,9 +148,18 @@
       </div>
       <div id="confetti" class="confetti" aria-hidden="true"></div>
     </div>
+
+    <!-- ===== メインメニュー（右クリック／☰ で表示） ===== -->
+    <div id="menu-overlay" class="overlay hidden">
+      <div class="menu-box">
+        <div class="menu-title">メニュー</div>
+        <button id="menu-title-btn" class="btn menu-item">タイトルへ もどる</button>
+        <button id="menu-close" class="btn menu-item menu-secondary">とじる</button>
+      </div>
+    </div>
   </main>
 
-  <script src="puzzles.js?v=9"></script>
-  <script src="game.js?v=9"></script>
+  <script src="puzzles.js?v=10"></script>
+  <script src="game.js?v=10"></script>
 </body>
 </html>

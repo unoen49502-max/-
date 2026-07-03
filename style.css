@@ -376,6 +376,30 @@ svg { display: block; }
 .btn { font-family: inherit; font-size: 15px; font-weight: 700; color: var(--btn-face); background: var(--crim); border: none; padding: 11px 22px; cursor: pointer; filter: drop-shadow(0 3px 0 var(--crim_dark)); }
 .btn:active { transform: translateY(3px); filter: none; }
 
+/* ===== メインメニュー（右クリック／☰ で表示） ===== */
+.ss-bar-right { display: flex; align-items: center; gap: 10px; }
+.menu-btn {
+  background: var(--crim); color: var(--panel); border: none; font-family: inherit;
+  font-size: 13px; font-weight: 700; line-height: 1; padding: 3px 8px 4px; cursor: pointer;
+  box-shadow: 0 0 0 1.5px var(--crim_dark);
+}
+.menu-btn:active { transform: translateY(1px); }
+.gh-menu-btn { margin-left: 2px; padding: 4px 8px 5px; }
+
+.menu-box {
+  position: relative; z-index: 2; background: var(--panel); color: var(--ink);
+  border: 5px solid var(--crim); box-shadow: 0 0 0 3px var(--crim_d);
+  padding: 20px 22px 22px; text-align: center; min-width: 236px; max-width: 90vw;
+  animation: dropin 220ms steps(4) 1;
+}
+.menu-title {
+  font-family: "Melonano", "DotGothic16", sans-serif; font-size: 24px; color: var(--crim);
+  letter-spacing: 2px; text-shadow: 2px 2px 0 var(--crim_d); margin-bottom: 16px;
+}
+.menu-item { display: block; width: 100%; }
+.menu-item + .menu-item { margin-top: 11px; }
+.menu-item.menu-secondary { background: var(--crim_d); }
+
 /* ===== クリア画面 ===== */
 .overlay {
   position: fixed; inset: 0; background: var(--scrim);
