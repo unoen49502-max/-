@@ -13,7 +13,9 @@
   const puzzleNameEl = document.getElementById("puzzle-name");
   const timerEl = document.getElementById("timer");
   const backBtn = document.getElementById("back-btn");
-  const resetBtn = document.getElementById("reset-btn");
+  const resetBtn = document.getElementById("btn-reset");
+  const pauseBtn = document.getElementById("btn-pause");
+  const undoBtn = document.getElementById("btn-undo");
   const modeFillBtn = document.getElementById("mode-fill");
   const modeMarkBtn = document.getElementById("mode-mark");
   const clearOverlay = document.getElementById("clear-overlay");
@@ -73,12 +75,17 @@
   let timerId = null;
   let seconds = 0;
   let cleared = false;
+  let paused = false;
   let doneLines = 0;
   let milestones = {};   // 進捗セリフの発火済みフラグ
 
   // ドラッグ／長押し
   let dragging = false, dragValue = null, dragTarget = null;
   let lpTimer = null, lpCell = null, lpStart = null;
+
+  // アンドゥ履歴（1ストローク＝1操作単位）
+  let history = [];      // [{r,c,prev}[], ...]
+  let stroke = null;     // 進行中ストロークの変更セル
 
   // ピンチズーム／パン
   let boardEventsAttached = false;
@@ -201,8 +208,12 @@
     rows = p.solution.length;
     cols = p.solution[0].length;
     state = Array.from({ length: rows }, () => new Array(cols).fill(EMPTY));
-    cleared = false; seconds = 0; mode = "fill"; doneLines = 0; milestones = {};
+    cleared = false; paused = false; seconds = 0; mode = "fill"; doneLines = 0; milestones = {};
+    history = []; stroke = null;
+    board.classList.remove("paused", "clearing");
+    setPauseUI(false);
     updateModeButtons();
+    updateUndoButton();
 
     puzzleNameEl.textContent = p.name;
     selectScreen.classList.add("hidden");
@@ -220,46 +231,61 @@
   }
 
   // ===== 盤面生成 =====
+  // ヒント数字の3色ローテーション（並びを見分けやすく）
+  const HINT_COLORS = ["var(--cell-ink)", "var(--hint2)", "var(--hint3)"];
+  function hintColor(i) { return HINT_COLORS[i % HINT_COLORS.length]; }
+
   function buildBoard() {
     const rClues = rowClues(current.solution);
     const cClues = colClues(current.solution);
-    const maxRowClue = Math.max(...rClues.map(c => c.length));
-    const maxColClue = Math.max(...cClues.map(c => c.length));
 
-    const wrapW = (board.parentElement && board.parentElement.clientWidth) || (window.innerWidth - 80);
-    const cellSize = pickCellSize(cols + maxRowClue, wrapW);
-
-    board.style.gridTemplateColumns = `${maxRowClue * cellSize}px repeat(${cols}, ${cellSize}px)`;
-    board.style.gridTemplateRows = `${maxColClue * cellSize}px repeat(${rows}, ${cellSize}px)`;
-    // ヒント文字サイズをセルに合わせる（下限を確保）
-    board.style.setProperty("--clue-fs", Math.max(11, Math.min(16, Math.round(cellSize * 0.6))) + "px");
+    // 1列目=ヒント欄(48px)、以降はセルを等分（minmax(0,1fr)で溢れを防ぐ）
+    const hintCol = cols >= 10 ? 44 : 48;
+    board.style.gridTemplateColumns = `${hintCol}px repeat(${cols}, minmax(0, 1fr))`;
+    board.style.gridTemplateRows = "";
     board.innerHTML = "";
 
+    // 左上コーナー
     const corner = document.createElement("div");
-    corner.className = "b-corner";
+    corner.className = "corner";
     board.appendChild(corner);
 
+    // 列ヒント（上部・独立タブ）
     cClues.forEach((clue, c) => {
+      const wrap = document.createElement("div");
+      wrap.className = "colhint-wrap";
       const el = document.createElement("div");
-      el.className = "b-cluecol" + (c % 5 === 0 ? " grp-edge" : "");
+      el.className = "colhint";
       el.dataset.col = c;
-      clue.forEach(n => { const s = document.createElement("span"); s.textContent = n; el.appendChild(s); });
-      board.appendChild(el);
+      clue.forEach((n, i) => {
+        const s = document.createElement("span");
+        s.textContent = n; s.style.display = "block"; s.style.color = hintColor(i);
+        el.appendChild(s);
+      });
+      wrap.appendChild(el);
+      board.appendChild(wrap);
     });
 
+    // 各行：行ヒント → セル
     for (let r = 0; r < rows; r++) {
-      const rc = document.createElement("div");
-      rc.className = "b-cluerow" + (r % 5 === 0 ? " grp-edge" : "");
-      rc.style.gridColumn = "1";
-      rc.dataset.row = r;
-      rClues[r].forEach(n => { const s = document.createElement("span"); s.textContent = n; rc.appendChild(s); });
-      board.appendChild(rc);
+      const rwrap = document.createElement("div");
+      rwrap.className = "rowhint-wrap";
+      const rh = document.createElement("div");
+      rh.className = "rowhint";
+      rh.dataset.row = r;
+      rClues[r].forEach((n, i) => {
+        const s = document.createElement("span");
+        s.textContent = n; s.style.color = hintColor(i); s.style.padding = "0 2px";
+        rh.appendChild(s);
+      });
+      rwrap.appendChild(rh);
+      board.appendChild(rwrap);
 
       for (let c = 0; c < cols; c++) {
         const cell = document.createElement("div");
         let cls = "cell";
-        if (c % 5 === 0) cls += " grp-left";
-        if (r % 5 === 0) cls += " grp-top";
+        if ((c + 1) % 5 === 0 && c !== cols - 1) cls += " thick-right";
+        if ((r + 1) % 5 === 0 && r !== rows - 1) cls += " thick-bottom";
         cell.className = cls;
         cell.dataset.r = r; cell.dataset.c = c;
         board.appendChild(cell);
@@ -270,24 +296,21 @@
     renderCells();
   }
 
-  function pickCellSize(totalCols, avail) {
-    const a = (avail && avail > 40) ? avail : (window.innerWidth - 80);
-    const size = Math.floor((a - 2) / totalCols);
-    return Math.max(14, Math.min(size, 34));
-  }
-
   // ===== セル描画 =====
   function cellEl(r, c) { return board.querySelector(`.cell[data-r="${r}"][data-c="${c}"]`); }
   function renderCell(r, c, pop) {
     const el = cellEl(r, c);
     if (!el) return;
     const wasFilled = el.classList.contains("filled");
-    el.classList.toggle("filled", state[r][c] === FILLED);
-    el.classList.toggle("marked", state[r][c] === MARKED);
-    if (pop && state[r][c] === FILLED && !wasFilled) {
+    const isFilled = state[r][c] === FILLED;
+    const isMarked = state[r][c] === MARKED;
+    el.classList.toggle("filled", isFilled);
+    el.classList.toggle("marked", isMarked);
+    el.textContent = isMarked ? "✕" : "";
+    if (pop && isFilled && !wasFilled) {
       el.classList.remove("pop"); void el.offsetWidth; el.classList.add("pop");
     }
-    if (pop && state[r][c] === MARKED) {
+    if (pop && isMarked) {
       el.classList.remove("mark-pop"); void el.offsetWidth; el.classList.add("mark-pop");
     }
   }
@@ -303,13 +326,15 @@
     clearHighlight();
     for (let cc = 0; cc < cols; cc++) { const e = cellEl(r, cc); if (e) e.classList.add("hl"); }
     for (let rr = 0; rr < rows; rr++) { const e = cellEl(rr, c); if (e) e.classList.add("hl"); }
-    const rh = board.querySelector(`.b-cluerow[data-row="${r}"]`); if (rh) rh.classList.add("hl");
-    const ch = board.querySelector(`.b-cluecol[data-col="${c}"]`); if (ch) ch.classList.add("hl");
+    const rh = board.querySelector(`.rowhint[data-row="${r}"]`); if (rh) rh.classList.add("hl");
+    const ch = board.querySelector(`.colhint[data-col="${c}"]`); if (ch) ch.classList.add("hl");
   }
 
   // ===== 入力処理 =====
   function startAction(target, r, c) {
+    if (paused) return;
     dragging = true; dragTarget = target;
+    stroke = [];
     const cur = state[r][c];
     if (target === "mark") dragValue = cur === MARKED ? EMPTY : MARKED;
     else dragValue = cur === FILLED ? EMPTY : FILLED;
@@ -355,7 +380,7 @@
     board.addEventListener("pointerdown", e => {
       if (pinching || pts.size >= 2) return;
       const cell = e.target.closest(".cell");
-      if (!cell || cleared) return;
+      if (!cell || cleared || paused) return;
       e.preventDefault();
       const r = +cell.dataset.r, c = +cell.dataset.c;
       resetIdle();
@@ -406,6 +431,8 @@
       }
       if (!dragging) return;
       dragging = false; dragValue = null; dragTarget = null;
+      if (stroke && stroke.length) { history.push(stroke); updateUndoButton(); }
+      stroke = null;
       checkClear();
     };
     board.addEventListener("pointerup", endDrag);
@@ -414,17 +441,20 @@
   }
 
   function applyCell(r, c) {
-    if (cleared) return;
+    if (cleared || paused) return;
     const cur = state[r][c];
+    let next = cur;
     if (dragTarget === "fill") {
-      if (dragValue === FILLED && cur !== FILLED) state[r][c] = FILLED;
-      else if (dragValue === EMPTY && cur === FILLED) state[r][c] = EMPTY;
+      if (dragValue === FILLED && cur !== FILLED) next = FILLED;
+      else if (dragValue === EMPTY && cur === FILLED) next = EMPTY;
       else return;
     } else {
-      if (dragValue === MARKED && cur === EMPTY) state[r][c] = MARKED;
-      else if (dragValue === EMPTY && cur === MARKED) state[r][c] = EMPTY;
+      if (dragValue === MARKED && cur === EMPTY) next = MARKED;
+      else if (dragValue === EMPTY && cur === MARKED) next = EMPTY;
       else return;
     }
+    if (stroke) stroke.push({ r, c, prev: cur });
+    state[r][c] = next;
     renderCell(r, c, true);
     updateClueStrike();
     updateProgress();
@@ -438,16 +468,16 @@
       const pl = state[r].map(v => (v === FILLED ? 1 : 0));
       const ok = arraysEqual(lineClue(pl), lineClue(current.solution[r]));
       if (ok) done++;
-      const el = board.querySelector(`.b-cluerow[data-row="${r}"]`);
-      if (el) el.classList.toggle("clue-done", ok);
+      const el = board.querySelector(`.rowhint[data-row="${r}"]`);
+      if (el) el.classList.toggle("done", ok);
     }
     for (let c = 0; c < cols; c++) {
       const pl = state.map(row => (row[c] === FILLED ? 1 : 0));
       const solCol = current.solution.map(row => row[c]);
       const ok = arraysEqual(lineClue(pl), lineClue(solCol));
       if (ok) done++;
-      const el = board.querySelector(`.b-cluecol[data-col="${c}"]`);
-      if (el) el.classList.toggle("clue-done", ok);
+      const el = board.querySelector(`.colhint[data-col="${c}"]`);
+      if (el) el.classList.toggle("done", ok);
     }
     if (!cleared && done > doneLines) { flashFace("shy", 700); setSpeech(SPEECH.line); }
     doneLines = done;
@@ -557,6 +587,10 @@
     timerId = setInterval(() => { seconds++; timerEl.textContent = formatTime(seconds); }, 1000);
   }
   function stopTimer() { if (timerId) { clearInterval(timerId); timerId = null; } }
+  function resumeTimer() {
+    if (timerId) return;
+    timerId = setInterval(() => { seconds++; timerEl.textContent = formatTime(seconds); }, 1000);
+  }
   function formatTime(s) {
     const m = Math.floor(s / 60), sec = s % 60;
     return String(m).padStart(2, "0") + ":" + String(sec).padStart(2, "0");
@@ -569,9 +603,54 @@
     modeMarkBtn.classList.toggle("active", mode === "mark");
   }
 
+  // ===== ポーズ（きゅうけい） =====
+  function setPauseUI(on) {
+    if (!pauseBtn) return;
+    pauseBtn.classList.toggle("active", on);
+    const ico = pauseBtn.querySelector(".ico");
+    if (ico) ico.textContent = on ? "▶" : "⏸";
+  }
+  function togglePause() {
+    if (cleared || !current) return;
+    paused = !paused;
+    board.classList.toggle("paused", paused);
+    setPauseUI(paused);
+    if (paused) {
+      stopTimer();
+      if (idleId) clearTimeout(idleId);
+      setSpeech("きゅうけいちゅう…♦");
+    } else {
+      resumeTimer();
+      setSpeech(SPEECH.line);
+      resetIdle();
+    }
+  }
+
+  // ===== アンドゥ（もどす） =====
+  function updateUndoButton() {
+    if (undoBtn) undoBtn.disabled = history.length === 0;
+  }
+  function undo() {
+    if (cleared || paused || !history.length) return;
+    const last = history.pop();
+    for (let i = last.length - 1; i >= 0; i--) {
+      const { r, c, prev } = last[i];
+      state[r][c] = prev;
+      renderCell(r, c, false);
+    }
+    updateClueStrike();
+    updateProgress();
+    updateUndoButton();
+    resetIdle();
+    flashFace("shy", 500);
+  }
+
   // ===== 画面遷移 =====
   function backToSelect() {
     stopTimer();
+    paused = false;
+    board.classList.remove("paused", "clearing");
+    setPauseUI(false);
     if (idleId) clearTimeout(idleId);
     clearOverlay.classList.add("hidden");
     gameScreen.classList.add("hidden");
@@ -584,8 +663,11 @@
   function resetBoard() {
     if (!current) return;
     state = Array.from({ length: rows }, () => new Array(cols).fill(EMPTY));
-    cleared = false; doneLines = 0; milestones = {};
-    board.classList.remove("clearing");
+    cleared = false; paused = false; doneLines = 0; milestones = {};
+    history = []; stroke = null;
+    board.classList.remove("clearing", "paused");
+    setPauseUI(false);
+    updateUndoButton();
     renderCells();
     updateClueStrike();
     updateProgress();
@@ -615,6 +697,8 @@
   // ===== イベント登録 =====
   backBtn.addEventListener("click", backToSelect);
   resetBtn.addEventListener("click", resetBoard);
+  if (pauseBtn) pauseBtn.addEventListener("click", togglePause);
+  if (undoBtn) undoBtn.addEventListener("click", undo);
   modeFillBtn.addEventListener("click", () => setMode("fill"));
   modeMarkBtn.addEventListener("click", () => setMode("mark"));
   clearNextBtn.addEventListener("click", backToSelect);
