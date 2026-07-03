@@ -571,6 +571,23 @@
     resetIdle();
   }
 
+  // ===== 起動画面（画面0）→ 各画面へ =====
+  const titleScreen = document.getElementById("title-screen");
+  const btnStart = document.getElementById("btn-start-stream");
+  const btnGallery = document.getElementById("btn-gallery");
+  function enterSelectFromTitle() {
+    if (titleScreen) titleScreen.classList.add("hidden");
+    gameScreen.classList.add("hidden");
+    clearOverlay.classList.add("hidden");
+    selectScreen.classList.remove("hidden");
+    renderSelect();
+    setFace("neutral");
+    setSpeech(SPEECH.start);
+  }
+  if (btnStart) btnStart.addEventListener("click", enterSelectFromTitle);
+  // TODO: #gallery-screen 実装後に遷移先を差し替え。暫定で工房の壁へ。
+  if (btnGallery) btnGallery.addEventListener("click", enterSelectFromTitle);
+
   // ===== イベント登録 =====
   backBtn.addEventListener("click", backToSelect);
   resetBtn.addEventListener("click", resetBoard);

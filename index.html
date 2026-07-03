@@ -7,12 +7,52 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=3">
+  <link rel="stylesheet" href="style.css?v=4">
 </head>
 <body>
   <main class="app">
+    <!-- ===== 起動画面（画面0） ===== -->
+    <section id="title-screen">
+      <div class="ts-statusbar">
+        <div><span class="ts-dot">●</span>OFFLINE</div>
+        <div>まもなく かいてん…</div>
+      </div>
+
+      <div class="ts-title-area">
+        <div class="ts-logo">メイの<br>ドット工房</div>
+        <div class="ts-subtitle-border">
+          <div class="ts-subtitle-bar">— HAGURE MAY PICROSS ATELIER —</div>
+        </div>
+      </div>
+
+      <div class="ts-avatar-wrap">
+        <div class="ts-avatar-outer">
+          <div class="ts-avatar-inner">
+            <img src="assets/mei_bust.png" alt="はぐれメイ">
+          </div>
+        </div>
+      </div>
+
+      <div class="ts-name-pill-wrap">
+        <div class="ts-name-pill-outer">
+          <div class="ts-name-pill-inner">はぐれメイ</div>
+        </div>
+      </div>
+
+      <div class="ts-buttons">
+        <button class="ts-btn ts-btn-primary" id="btn-start-stream">
+          <span>▶ はいしんを はじめる</span>
+        </button>
+        <button class="ts-btn ts-btn-secondary" id="btn-gallery">
+          <span>こうぼうの かべ</span>
+        </button>
+      </div>
+
+      <div class="ts-footer">© はぐれメイ / ver 0.3<br>タップおん が でます</div>
+    </section>
+
     <!-- ===== セレクト画面（工房の壁） ===== -->
-    <section id="select-screen" class="screen">
+    <section id="select-screen" class="screen hidden">
       <header class="titlebar"><h1 class="title">メイのドット工房</h1></header>
 
       <div class="greeter">
@@ -93,7 +133,7 @@
     </div>
   </main>
 
-  <script src="puzzles.js?v=3"></script>
-  <script src="game.js?v=3"></script>
+  <script src="puzzles.js?v=4"></script>
+  <script src="game.js?v=4"></script>
 </body>
 </html>

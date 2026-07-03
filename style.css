@@ -4,6 +4,11 @@
   src: url("assets/fonts/Melonano.ttf") format("truetype");
   font-display: swap;
 }
+@font-face {
+  font-family: "MPRounded";
+  src: url("assets/fonts/MPLUSRounded1c-Bold.ttf") format("truetype");
+  font-display: swap;
+}
 
 :root {
   /* base */
@@ -12,7 +17,10 @@
   --ink: #402438; --ink_l: #7a4a60;
   /* 枠・アクセント */
   --crim: #a02850; --crim_d: #582038; --crim_l: #d87888;
+  --crim_dark: #3a1424;            /* 最暗色（外周ライン・影） */
   --pink: #e898a0; --rose: #c04868;
+  --pink_d: #d46575;               /* 起動画面のベースピンク */
+  --live: #ff6b8a;                 /* LIVE/配信ドット */
   --gold: #e89040; --gold_l: #f8c060;
   /* 盤面 */
   --grid: #d8ac9f; --done: #96684a; --highlight: #ffe8d0;
@@ -58,6 +66,96 @@ body {
 }
 
 .hidden { display: none !important; }
+
+/* ===== 起動画面（#title-screen） ===== */
+#title-screen {
+  position: relative; width: 100%; margin: 0 auto;
+  height: 100dvh; min-height: 844px;
+  font-family: "MPRounded", "DotGothic16", sans-serif;
+  background: url("assets/bg_rotated.png") center center / auto 100% no-repeat var(--pink_d);
+  overflow: hidden;
+}
+.ts-statusbar {
+  position: absolute; top: 0; left: 0; right: 0; height: 34px;
+  background: var(--crim_d);
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 14px; color: var(--panel);
+  font-size: 11px; font-weight: 700; letter-spacing: .5px; z-index: 5;
+}
+.ts-dot { color: var(--live); margin-right: 4px; font-size: 10px; }
+
+.ts-title-area {
+  position: absolute; top: 64px; left: 0; right: 0;
+  display: flex; flex-direction: column; align-items: center;
+}
+.ts-logo {
+  font-family: "Melonano", sans-serif;
+  font-size: 42px; font-weight: 400; line-height: 1.12;
+  text-align: center; color: var(--white); letter-spacing: 1px;
+  text-shadow:
+    -3px -3px 0 var(--crim_d), 0 -3px 0 var(--crim_d), 3px -3px 0 var(--crim_d),
+    -3px 0 0 var(--crim_d), 3px 0 0 var(--crim_d),
+    -3px 3px 0 var(--crim_d), 0 3px 0 var(--crim_d), 3px 3px 0 var(--crim_d),
+    0 8px 0 var(--crim);
+}
+.ts-subtitle-border {
+  margin-top: 14px; background: var(--crim); padding: 3px; display: inline-block;
+  clip-path: polygon(10px 0,calc(100% - 10px) 0,100% 10px,100% calc(100% - 10px),calc(100% - 10px) 100%,10px 100%,0 calc(100% - 10px),0 10px);
+}
+.ts-subtitle-bar {
+  background: var(--white); padding: 6px 16px 5px; color: var(--crim);
+  font-size: 11px; font-weight: 700; letter-spacing: .5px; white-space: nowrap;
+  clip-path: polygon(7px 0,calc(100% - 7px) 0,100% 7px,100% calc(100% - 7px),calc(100% - 7px) 100%,7px 100%,0 calc(100% - 7px),0 7px);
+}
+
+.ts-avatar-wrap { position: absolute; top: 254px; left: 0; right: 0; display: flex; justify-content: center; }
+.ts-avatar-outer {
+  width: 214px; height: 214px; background: var(--crim); border-radius: 50%;
+  box-shadow: 0 0 0 3px var(--crim_dark); position: relative;
+}
+.ts-avatar-inner {
+  position: absolute; inset: 8px; background: var(--panel); border-radius: 50%; overflow: hidden;
+}
+.ts-avatar-inner img {
+  position: absolute; top: 50%; left: 50%; width: 120%;
+  transform: translate(-50%, -46%); image-rendering: pixelated;
+}
+
+.ts-name-pill-wrap { position: absolute; top: 486px; left: 0; right: 0; display: flex; justify-content: center; }
+.ts-name-pill-outer {
+  background: var(--pink_d); padding: 3px; filter: drop-shadow(0 4px 0 rgba(0,0,0,.25));
+  clip-path: polygon(10px 0,calc(100% - 10px) 0,100% 10px,100% calc(100% - 10px),calc(100% - 10px) 100%,10px 100%,0 calc(100% - 10px),0 10px);
+}
+.ts-name-pill-inner {
+  background: var(--crim_d); color: var(--panel); padding: 7px 24px 6px;
+  font-size: 14px; font-weight: 700; letter-spacing: 1px; white-space: nowrap;
+  clip-path: polygon(7px 0,calc(100% - 7px) 0,100% 7px,100% calc(100% - 7px),calc(100% - 7px) 100%,7px 100%,0 calc(100% - 7px),0 7px);
+}
+
+.ts-buttons { position: absolute; top: 552px; left: 0; right: 0; display: flex; flex-direction: column; align-items: center; gap: 16px; }
+.ts-btn {
+  width: 306px; background: var(--crim); padding: 4px; border: none; cursor: pointer;
+  filter: drop-shadow(0 5px 0 var(--crim_dark)); font-family: inherit;
+  clip-path: polygon(10px 0,calc(100% - 10px) 0,100% 10px,100% calc(100% - 10px),calc(100% - 10px) 100%,10px 100%,0 calc(100% - 10px),0 10px);
+}
+.ts-btn > span {
+  display: block; padding: 13px 0 11px; text-align: center;
+  font-size: 15px; font-weight: 700; letter-spacing: 1px;
+  clip-path: polygon(6px 0,calc(100% - 6px) 0,100% 6px,100% calc(100% - 6px),calc(100% - 6px) 100%,6px 100%,0 calc(100% - 6px),0 6px);
+}
+.ts-btn-primary > span { background: var(--crim_d); color: var(--white); }
+.ts-btn-secondary { filter: drop-shadow(0 5px 0 rgba(88,32,56,.4)); }
+.ts-btn-secondary > span { background: var(--white); color: var(--crim_d); }
+.ts-btn:active { transform: translateY(3px); filter: none; }
+
+.ts-footer {
+  position: absolute; bottom: 22px; left: 0; right: 0; text-align: center;
+  color: var(--white); font-size: 10px; line-height: 1.8; font-weight: 700;
+  text-shadow:
+    -1.5px -1.5px 0 var(--crim_d), 0 -1.5px 0 var(--crim_d), 1.5px -1.5px 0 var(--crim_d),
+    -1.5px 0 0 var(--crim_d), 1.5px 0 0 var(--crim_d),
+    -1.5px 1.5px 0 var(--crim_d), 0 1.5px 0 var(--crim_d), 1.5px 1.5px 0 var(--crim_d);
+}
 
 /* ===== 表情スプライト（3列2行・1面512） ===== */
 .face, .cam-face {
