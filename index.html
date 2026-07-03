@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=5">
+  <link rel="stylesheet" href="style.css?v=6">
 </head>
 <body>
   <main class="app">
@@ -52,22 +52,29 @@
     </section>
 
     <!-- ===== セレクト画面（工房の壁） ===== -->
-    <section id="select-screen" class="screen hidden">
-      <header class="titlebar"><h1 class="title">メイのドット工房</h1></header>
+    <section id="select-screen" class="hidden">
+      <div class="ss-statusbar">
+        <div><span class="ss-dot">●</span>OFFLINE</div>
+        <div>まもなく かいてん…</div>
+      </div>
 
-      <div class="greeter">
-        <div class="cam-frame cam-sm">
-          <div class="cam-circle"><div class="cam-face js-face face-neutral" aria-hidden="true"></div></div>
-          <span class="cam-name">はぐれメイ</span>
+      <div class="ss-greet">
+        <div class="ss-avatar-outer">
+          <div class="ss-avatar-inner"><img src="assets/mei_bust.png" alt="はぐれメイ"></div>
         </div>
-        <div class="speech-panel">
-          <span class="speech-name">はぐれメイ</span>
-          <span class="speech-text js-speech">すきな えを えらんでね♦</span>
+        <div class="ss-speech">
+          <span class="ss-speech-name">はぐれメイ</span>
+          <div class="ss-speech-border ss-n8">
+            <div class="ss-speech-bar ss-n5">
+              <div class="ss-speech-text js-speech">すきな えを えらんでね◆</div>
+            </div>
+          </div>
         </div>
       </div>
 
-      <h2 class="screen-heading">こうぼうの かべ</h2>
-      <div id="puzzle-list" class="puzzle-list"></div>
+      <div class="ss-heading">こうぼうの かべ</div>
+
+      <div class="ss-grid" id="puzzle-list"></div>
     </section>
 
     <!-- ===== ゲーム画面（配信オーバーレイ・スマホ主軸） ===== -->
@@ -133,7 +140,7 @@
     </div>
   </main>
 
-  <script src="puzzles.js?v=5"></script>
-  <script src="game.js?v=5"></script>
+  <script src="puzzles.js?v=6"></script>
+  <script src="game.js?v=6"></script>
 </body>
 </html>

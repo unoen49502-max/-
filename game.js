@@ -28,6 +28,7 @@
   // ===== キャラの表情・セリフ（配信リアクション） =====
   const FACE_CLASSES = ["face-neutral", "face-cry", "face-angry", "face-shock", "face-shy", "face-happy"];
   const SPEECH = {
+    select: "すきな えを えらんでね♦",
     start: "いっしょに かこうね♦",
     line:  "その ちょうし♦",
     p25:   "いいかんじ！♦",
@@ -128,43 +129,66 @@
   }
 
   // ===== 選択画面（工房の壁） =====
+  // solution(0/1) から正方形の中央寄せサムネを描く
+  function buildThumb(solution) {
+    const rows = solution.length, cols = solution[0].length, side = Math.max(rows, cols);
+    const wrap = document.createElement("div");
+    wrap.className = "thumb-grid";
+    wrap.style.setProperty("--cols", side);
+    wrap.style.setProperty("--rows", side);
+    const offX = Math.floor((side - cols) / 2), offY = Math.floor((side - rows) / 2);
+    for (let r = 0; r < side; r++) for (let c = 0; c < side; c++) {
+      const cell = document.createElement("span");
+      const sr = r - offY, sc = c - offX;
+      if (sr >= 0 && sr < rows && sc >= 0 && sc < cols && solution[sr][sc] === 1) cell.className = "on";
+      wrap.appendChild(cell);
+    }
+    return wrap;
+  }
+
   function renderSelect() {
     const solved = loadSolved();
     puzzleList.innerHTML = "";
     PUZZLES.forEach(p => {
-      const card = document.createElement("div");
-      card.className = "puzzle-card";
-      const size = `${p.solution[0].length}×${p.solution.length}`;
       const rec = solved[p.id];
-      if (rec) card.classList.add("solved");
+      const cleared = !!rec;
+      const cols = p.solution[0].length, rows = p.solution.length;
 
-      // サムネ（クリア＝完成絵／未クリア＝？）
-      const thumb = document.createElement("div");
-      thumb.className = "pc-thumb";
-      if (rec) {
-        thumb.style.gridTemplateColumns = `repeat(${p.solution[0].length}, 1fr)`;
-        p.solution.forEach(row => row.forEach(v => {
-          const d = document.createElement("span");
-          d.className = "t-cell " + (v ? "t-on" : "t-off");
-          thumb.appendChild(d);
-        }));
+      const card = document.createElement("button");
+      card.className = "ss-card " + (cleared ? "ss-card-cleared" : "ss-card-locked") + " ss-n10";
+      card.dataset.puzzleId = p.id;
+
+      const inner = document.createElement("span");
+      inner.className = "ss-card-inner ss-n7";
+
+      const frame = document.createElement("span");
+      frame.className = "ss-thumb-frame ss-n7";
+      const tinner = document.createElement("span");
+      tinner.className = "ss-thumb-inner";
+      if (cleared) {
+        tinner.appendChild(buildThumb(p.solution));
       } else {
-        thumb.classList.add("pc-thumb-q");
-        thumb.textContent = "？";
+        const q = document.createElement("span");
+        q.className = "ss-thumb-q"; q.textContent = "？";
+        tinner.appendChild(q);
       }
+      frame.appendChild(tinner);
 
-      const pencils = [1, 2, 3].map(i =>
-        `<span class="${i <= p.difficulty ? "on" : ""}">✎</span>`).join("");
+      const title = document.createElement("span");
+      title.className = "ss-card-title"; title.textContent = p.name;
 
-      const meta = document.createElement("div");
-      meta.innerHTML =
-        `<div class="pc-name">${escapeHtml(p.name)}</div>` +
-        `<span class="pc-size">${size}</span>` +
-        `<div class="pc-diff">${pencils}</div>` +
-        (rec ? `<div class="pc-clear">${formatTime(rec.time)}</div>` : "");
+      const info = document.createElement("span");
+      info.className = "ss-info-row";
+      const pencils = [0, 1, 2].map(i => `<i class="${i < p.difficulty ? "on" : ""}">✎</i>`).join("");
+      info.innerHTML =
+        `<span class="ss-size-pill">${cols}×${rows}</span>` +
+        `<span class="ss-diff">${pencils}</span>` +
+        (cleared
+          ? `<span class="ss-time"><i class="star">✦</i>${formatTime(rec.time)}</span>`
+          : `<span class="ss-locked-note">みかいほう</span>`);
 
-      card.appendChild(thumb);
-      card.appendChild(meta);
+      inner.append(frame, title, info);
+      card.appendChild(inner);
       card.addEventListener("click", () => startPuzzle(p));
       puzzleList.appendChild(card);
     });
@@ -554,7 +578,7 @@
     selectScreen.classList.remove("hidden");
     renderSelect();
     setFace("neutral");
-    setSpeech(SPEECH.start);
+    setSpeech(SPEECH.select);
   }
 
   function resetBoard() {
@@ -582,7 +606,7 @@
     selectScreen.classList.remove("hidden");
     renderSelect();
     setFace("neutral");
-    setSpeech(SPEECH.start);
+    setSpeech(SPEECH.select);
   }
   if (btnStart) btnStart.addEventListener("click", enterSelectFromTitle);
   // TODO: #gallery-screen 実装後に遷移先を差し替え。暫定で工房の壁へ。
