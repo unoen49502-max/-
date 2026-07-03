@@ -272,7 +272,7 @@ body {
   display: flex; flex-direction: column; overflow: hidden;
   background:
     linear-gradient(rgba(255,248,244,.32), rgba(255,248,244,.32)),
-    url("assets/gallery_room.png") center / cover no-repeat,
+    url("assets/gallery_room.png?v=8") center / cover no-repeat,
     var(--pink_d);
 }
 
