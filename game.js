@@ -83,7 +83,7 @@
     10: [
       { expr: "normal", text: "１０もん とうたつ かぁ…<br>やるじゃん。" },
       { expr: "pout",   text: "まあ メイさんの ファンなら<br>これくらい できて とうぜんだけど？" },
-      { expr: "shy",    text: "う、うれしくなんて ないんだからね◆" },
+      { expr: "shy",    text: "せいぜい がんばると いいんだよね！" },
     ],
     15: [
       { expr: "surprise", text: "１５もん！？<br>ちょっと ペース はやくない！？" },
@@ -94,12 +94,12 @@
     20: [
       { expr: "normal", text: "ここまで くると…<br>もう ほんものだね。" },
       { expr: "down",   text: "…くやしいけど、メイさんより<br>センス あるかも。" },
-      { expr: "shy",    text: "な、なんて ね！ じょうだんだよ◆" },
+      { expr: "shy",    text: "というとでも おもった？ まだ まけてないんだよね！" },
     ],
     25: [
       { expr: "surprise", text: "え、まだ といてるの！？" },
-      { expr: "normal",   text: "メイさん、ずっと みてたんだよ。<br>きみが えを かんせいさせるとこ。" },
-      { expr: "shy",      text: "これからも… となりで みてて<br>いいかな？◆" },
+      { expr: "normal",   text: "メイさんも おうえん してあげるんだよね！" },
+      { expr: "shy",      text: "まだまだ がんばろう！" },
     ],
   };
   let faceResetId = null;
