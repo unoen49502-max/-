@@ -19,13 +19,10 @@
   const modeFillBtn = document.getElementById("mode-fill");
   const modeMarkBtn = document.getElementById("mode-mark");
   const clearOverlay = document.getElementById("clear-overlay");
-  const clearArt = document.getElementById("clear-art");
-  const clearTimeEl = document.getElementById("clear-time");
-  const clearNextBtn = document.getElementById("clear-next");
+  const clearNextBtn = document.getElementById("clear-next-btn");
   const progressBar = document.getElementById("progress-bar");
   const progressPct = document.getElementById("progress-pct");
   const starCountEl = document.getElementById("star-count");
-  const confettiEl = document.getElementById("confetti");
   const menuOverlay = document.getElementById("menu-overlay");
   const menuTitleBtn = document.getElementById("menu-title-btn");
   const menuCloseBtn = document.getElementById("menu-close");
@@ -44,6 +41,32 @@
     idle:  "…みてる？♦",
     reset: "もういちど かこ♦",
     clear: "かんせい！ かべに かざろ♦",
+  };
+
+  // クリア時のモチーフ別うんちく（感心＋ちょっと上から目線。<span class="em">…</span>でピンク強調）
+  // パズル追加時は id を足すだけ。無ければ _default。
+  const MEI_TRIVIA = {
+    heart: 'ハートマーク、じつは しんぞうじゃなくて むかしの <span class="em">しょくぶつの タネ</span>が モチーフって せつが あるんだよ◆',
+    face:  'えがおって、<span class="em">むりやり つくる</span>だけでも のうが だまされて たのしくなるんだよ。メイさんは しってたけどね◆',
+    cat:   'ねこの ヒゲは かざりじゃなくて、<span class="em">すきまの はば</span>を はかる センサーなんだよね◆',
+    mush:  'キノコは しょくぶつじゃなくて、じつは <span class="em">どうぶつに ちかい</span>なかまなんだよ。しってた？◆',
+    ship:  'うちゅうは <span class="em">おとが しない</span>せかいなんだよ。くうきが ないと おとは つたわらないからね◆',
+    key:   'むかしの かぎは <span class="em">木で できてた</span>んだよ。エジプトの ころには もう あったらしいよ◆',
+    star:  'ほしは よるだけじゃなく <span class="em">ひるまも そらに ある</span>んだよ。たいようが まぶしくて 見えないだけ◆',
+    apple: 'りんごが みずに うくのは、なかみの <span class="em">やく2わりが くうき</span>だからなんだって◆',
+    house: 'いえの まどは、むかしは ガラスじゃなく <span class="em">かみや かい</span>を はってたんだよ◆',
+    tree:  'おおきな 木は、じめんの したに <span class="em">えだと おなじくらい</span>ねを ひろげてるんだよ◆',
+    ghost: 'おばけを こわいと かんじるのは、<span class="em">みを まもる</span>ための のうの はんのうなんだって◆',
+    drop:  'しずくが まるいのは、<span class="em">ひょうめんちょうりょく</span>で ぎゅっと まとまろうとするからだよ◆',
+    flower:'はなが いいにおいなのは、<span class="em">むしを よぶ</span>ためなんだよ。じぶんの ためじゃないの◆',
+    rabbit:'うさぎの まえばは <span class="em">一生 のびつづける</span>んだよ。だから いつも なにか かじってるの◆',
+    cake:  'ケーキの ろうそくを ふきけす ならわしには、<span class="em">けむりで ねがいを とどける</span>いみが あったんだって◆',
+    crown: 'おうかんの とがった かざりは、たいようの <span class="em">ひかりを あらわしてる</span>って せつが あるよ◆',
+    penguin:'ペンギンの せなかが くろいのは、うみで <span class="em">うえから 見えにくく</span>する ためなんだよ◆',
+    robot: 'ロボットって ことばは、チェコごの <span class="em">「はたらく」</span>から できたんだよ。しってた？◆',
+    car:   'いちばん はじめの くるまは、ガソリンじゃなくて <span class="em">じょうき</span>で うごいてたんだよ◆',
+    crab:  'かにが よこに あるくのは、あしの <span class="em">かんせつが よこにしか</span>まがらないからなんだよね◆',
+    _default: 'こんなのも といちゃうなんて、メイさん ちょっと かんどうしちゃった◆',
   };
   let faceResetId = null;
   function setFace(name) {
@@ -81,6 +104,7 @@
   let seconds = 0;
   let cleared = false;
   let paused = false;
+  let newRecord = false;
   let doneLines = 0;
   let milestones = {};   // 進捗セリフの発火済みフラグ
 
@@ -524,7 +548,8 @@
 
     const solved = loadSolved();
     const prev = solved[current.id];
-    if (!prev || seconds < prev.time) solved[current.id] = { time: seconds };
+    newRecord = !prev || seconds < prev.time;   // 初クリア or ベスト更新
+    if (newRecord) solved[current.id] = { time: seconds };
     saveSolved(solved);
 
     setFace("happy");
@@ -552,37 +577,31 @@
   }
 
   function showClear() {
-    renderClearArt();
-    clearTimeEl.textContent = "TIME " + formatTime(seconds);
+    fillClearArt(current.solution);
+    const t = document.querySelector(".js-clear-time");
+    if (t) t.textContent = "TIME " + formatTime(seconds);
+    const tv = document.querySelector(".js-trivia-text");
+    if (tv) tv.innerHTML = MEI_TRIVIA[current.id] || MEI_TRIVIA._default;
+    clearOverlay.classList.toggle("is-record", newRecord);
     clearOverlay.classList.remove("hidden");
-    spawnConfetti();
     updateStarCount();
   }
 
-  function renderClearArt() {
-    const sol = current.solution;
-    clearArt.style.gridTemplateColumns = `repeat(${cols}, 11px)`;
-    clearArt.innerHTML = "";
-    for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) {
-      const d = document.createElement("div");
-      d.className = "ca-cell " + (sol[r][c] === 1 ? "ca-on" : "ca-off");
-      clearArt.appendChild(d);
-    }
-  }
-
-  // 紙吹雪（8×8矩形・重力落下のみ）
-  function spawnConfetti() {
-    if (!confettiEl) return;
-    confettiEl.innerHTML = "";
-    const colors = ["var(--crim)", "var(--gold)", "var(--pink)"];
-    for (let i = 0; i < 40; i++) {
-      const p = document.createElement("i");
-      p.style.left = Math.floor(Math.random() * 100) + "%";
-      p.style.background = colors[i % 3];
-      const dur = 900 + Math.floor(Math.random() * 900);
-      const delay = Math.floor(Math.random() * 500);
-      p.style.animation = `fall ${dur}ms steps(18) ${delay}ms 1 forwards`;
-      confettiEl.appendChild(p);
+  // 完成ドット絵を solution から額縁内に描く（中央寄せ・正方形）
+  function fillClearArt(solution) {
+    const art = document.querySelector(".js-clear-art");
+    if (!art) return;
+    const R = solution.length, C = solution[0].length, side = Math.max(R, C);
+    art.style.setProperty("--cols", side);
+    art.style.setProperty("--rows", side);
+    const offX = Math.floor((side - C) / 2), offY = Math.floor((side - R) / 2);
+    art.innerHTML = "";
+    for (let r = 0; r < side; r++) for (let c = 0; c < side; c++) {
+      const sr = r - offY, sc = c - offX;
+      const on = sr >= 0 && sr < R && sc >= 0 && sc < C && solution[sr][sc] === 1;
+      const span = document.createElement("span");
+      if (on) span.className = "on";
+      art.appendChild(span);
     }
   }
 

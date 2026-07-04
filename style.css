@@ -45,6 +45,15 @@
   --hint3: #c26a52;        /* ヒント色3（橙） */
   --btn-face: #fdf3ea;     /* ボタン面（クリーム） */
   --track-bg: #e8c4cc;     /* 進捗トラック地 */
+  /* クリアオーバーレイ 追加 */
+  --frame: #e8b34a;        /* 額縁ゴールド */
+  --frame-hi: #fbe3a0;     /* 額縁ハイライト */
+  --art-ink: #c0284e;      /* 完成ドット絵の塗り */
+  --rec: #ffd24a;          /* NEW RECORD地 */
+  --rec-ink: #7a3800;      /* NEW RECORD字 */
+  --trivia-bd: #c78ba0;    /* うんちく枠（中間ピンク） */
+  --em: #ff9ec2;           /* うんちく強調語 */
+  --time-pill: #f0d5cd;    /* TIMEピル地 */
   /* 盤面 */
   --grid: #d8ac9f; --done: #96684a; --highlight: #ffe8d0;
   --white: #fff4ee; --hair: #201828;
@@ -405,28 +414,78 @@ svg { display: block; }
   position: fixed; inset: 0; background: var(--scrim);
   display: flex; justify-content: center; align-items: center; z-index: 1000; padding: 16px; overflow: hidden;
 }
-.clear-box {
-  position: relative; z-index: 2; background: var(--panel); color: var(--ink);
-  border: 5px solid var(--crim); box-shadow: 0 0 0 3px var(--crim_d);
-  padding: 20px 24px; text-align: center; max-width: 92vw;
-  animation: dropin 260ms steps(4) 1;
-}
 @keyframes dropin { 0% { transform: translateY(-40px); } 100% { transform: translateY(0); } }
-.big-face {
-  width: 92px; height: 92px; margin: 0 auto 10px;
-  border: 4px solid var(--crim); box-shadow: 0 0 0 3px var(--crim_d); background-color: var(--panel);
-}
-.clear-title { font-size: 28px; letter-spacing: 2px; color: var(--crim); text-shadow: 3px 3px 0 var(--crim_d); margin-bottom: 12px; }
-.clear-art { display: grid; margin: 0 auto 12px; background: var(--ink); border: 3px solid var(--ink); width: fit-content; }
-.clear-art .ca-cell { width: 10px; height: 10px; }
-.clear-art .ca-on { background: var(--crim); }
-.clear-art .ca-off { background: var(--panel2); }
-.clear-msg { font-size: 16px; color: var(--ink); margin-bottom: 8px; }
-.clear-time { font-size: 14px; color: var(--ink); margin-bottom: 16px; display: inline-block; background: var(--panel2); padding: 3px 12px; }
 
-.confetti { position: absolute; inset: 0; z-index: 1; pointer-events: none; }
-.confetti i { position: absolute; top: -16px; width: 8px; height: 8px; display: block; }
-@keyframes fall { 0% { transform: translateY(-20px); } 100% { transform: translateY(105vh); } }
+/* ===== クリアオーバーレイ（完成ドット絵のお披露目） ===== */
+.clear-overlay-root { position: fixed; inset: 0; z-index: 1000; display: flex; justify-content: center; }
+.clear-stage { position: relative; width: 100%; max-width: 440px; height: 100%; overflow: hidden; }
+
+.clear-backdrop { position: absolute; inset: 0; background: var(--crim_dark); }
+.clear-scrim { position: absolute; inset: 0; background: var(--scrim); }
+
+/* 後光：回転する光条＋中央グロー */
+.clear-halo { position: absolute; top: 50%; left: 50%; width: 900px; height: 900px; transform: translate(-50%,-52%);
+  background: repeating-conic-gradient(from 0deg at 50% 50%,
+    rgba(255,214,140,.28) 0deg, rgba(255,214,140,.28) 7deg,
+    rgba(255,214,140,0) 7deg, rgba(255,214,140,0) 14deg);
+  animation: clear-spin 40s linear infinite; pointer-events: none; }
+.clear-halo2 { position: absolute; top: 50%; left: 50%; width: 620px; height: 620px; transform: translate(-50%,-52%);
+  background: radial-gradient(circle, rgba(255,224,170,.42) 0%, rgba(255,180,150,.15) 45%, rgba(255,180,150,0) 70%);
+  pointer-events: none; }
+@keyframes clear-spin { to { transform: translate(-50%,-52%) rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .clear-halo { animation: none; } }
+
+.clear-overlay { position: absolute; inset: 0; display: flex; align-items: flex-start; justify-content: center; padding-top: 70px; }
+
+/* メイ立ち絵（カード手前・右下） */
+.clear-mei { position: absolute; right: -16px; bottom: 120px; height: 238px; image-rendering: pixelated; z-index: 4;
+  filter: drop-shadow(-4px 6px 8px rgba(0,0,0,.45)); }
+
+/* カード */
+.clear-card-outer { position: relative; z-index: 2; width: 300px; background: var(--crim_d); padding: 4px;
+  clip-path: polygon(12px 0,calc(100% - 12px) 0,100% 12px,100% calc(100% - 12px),calc(100% - 12px) 100%,12px 100%,0 calc(100% - 12px),0 12px);
+  filter: drop-shadow(0 10px 0 rgba(28,10,20,1)) drop-shadow(0 14px 22px rgba(0,0,0,.5)); }
+.clear-card { background: var(--cream); padding: 20px 20px 18px;
+  clip-path: polygon(9px 0,calc(100% - 9px) 0,100% 9px,100% calc(100% - 9px),calc(100% - 9px) 100%,9px 100%,0 calc(100% - 9px),0 9px);
+  display: flex; flex-direction: column; align-items: center; gap: 12px; position: relative; }
+
+/* NEW RECORD（カード外・ステージ基準・ベスト更新時のみ .is-record で表示） */
+.clear-newrec { position: absolute; top: 60px; right: 30px; z-index: 6; background: var(--rec); color: var(--rec-ink);
+  font-family: "Melonano", sans-serif; font-size: 10px; padding: 4px 9px 5px; letter-spacing: .5px;
+  transform: rotate(6deg); box-shadow: 0 3px 0 rgba(201,147,32,1), 0 0 0 2px var(--cream); display: none; }
+.clear-overlay-root.is-record .clear-newrec { display: block; }
+
+/* 見出し */
+.clear-title { font-family: "Melonano", sans-serif; font-size: 32px; color: var(--white); letter-spacing: 2px; line-height: 1;
+  text-shadow: -3px -3px 0 var(--crim),0 -3px 0 var(--crim),3px -3px 0 var(--crim),-3px 0 0 var(--crim),3px 0 0 var(--crim),-3px 3px 0 var(--crim),0 3px 0 var(--crim),3px 3px 0 var(--crim),0 7px 0 var(--crim_d); }
+
+/* 額縁＋完成ドット絵 */
+.clear-frame-outer { background: var(--frame); padding: 6px; box-shadow: 0 0 0 3px var(--crim_dark), inset 0 0 0 2px var(--frame-hi), 0 6px 0 rgba(58,20,36,.4); }
+.clear-frame-mat { background: var(--card); padding: 11px; }
+.clear-art { width: 168px; height: 168px; display: grid; image-rendering: pixelated;
+  grid-template-columns: repeat(var(--cols),1fr); grid-template-rows: repeat(var(--rows),1fr); }
+.clear-art > span { background: transparent; }
+.clear-art > span.on { background: var(--art-ink); }
+
+.clear-cap { font-size: 14px; font-weight: 700; color: var(--crim_d); letter-spacing: .5px; }
+
+/* タイム＋つぎへ */
+.clear-timerow { display: flex; align-items: center; gap: 10px; margin-top: 2px; }
+.clear-time-pill { background: var(--time-pill); color: var(--pill); font-weight: 700; font-size: 13px; padding: 6px 14px; letter-spacing: 1px;
+  box-shadow: inset 0 2px 0 rgba(255,255,255,.6); }
+.clear-next { background: var(--crim); padding: 3px; border: none; cursor: pointer; filter: drop-shadow(0 4px 0 var(--crim_dark));
+  clip-path: polygon(8px 0,calc(100% - 8px) 0,100% 8px,100% calc(100% - 8px),calc(100% - 8px) 100%,8px 100%,0 calc(100% - 8px),0 8px); }
+.clear-next > span { display: block; background: var(--crim_d); color: var(--btn-face); font-weight: 700; font-size: 14px; padding: 9px 20px 8px; letter-spacing: 1px;
+  box-shadow: inset 0 2px 0 rgba(255,255,255,.15); }
+.clear-next:active { transform: translateY(3px); filter: none; }
+
+/* うんちく吹き出し（clip-path 不使用：タグを飛び出させるため） */
+.clear-trivia { position: absolute; z-index: 5; left: 16px; right: 118px; bottom: 150px;
+  background: var(--crim_d); color: var(--cream); padding: 13px 13px 12px; font-size: 12px; font-weight: 700; line-height: 1.65; letter-spacing: .3px;
+  box-shadow: 0 0 0 3px var(--trivia-bd), 0 5px 10px rgba(0,0,0,.4); }
+.clear-trivia-tag { position: absolute; top: -10px; left: 10px; z-index: 6; background: var(--crim); color: var(--cream);
+  font-family: "Melonano", sans-serif; font-size: 9px; padding: 3px 9px 4px; letter-spacing: 1px; box-shadow: 0 0 0 2px var(--trivia-bd); }
+.clear-trivia .em { color: var(--em); }
 
 /* ===== デスクトップ（副・760px超）：中央寄せ ===== */
 @media (min-width: 760px) {

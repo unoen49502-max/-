@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=10">
+  <link rel="stylesheet" href="style.css?v=11">
 </head>
 <body>
   <main class="app">
@@ -136,17 +136,41 @@
       </div>
     </section>
 
-    <!-- ===== クリア演出 ===== -->
-    <div id="clear-overlay" class="overlay hidden">
-      <div class="clear-box">
-        <div id="clear-face" class="face face-happy big-face" aria-hidden="true"></div>
-        <h2 class="clear-title">かんせい！</h2>
-        <div id="clear-art" class="clear-art"></div>
-        <p class="clear-msg">かべに かざったよ！</p>
-        <p id="clear-time" class="clear-time">TIME 00:00</p>
-        <button id="clear-next" class="btn">つぎへ</button>
+    <!-- ===== クリア演出（完成ドット絵のお披露目） ===== -->
+    <div id="clear-overlay" class="clear-overlay-root hidden">
+      <div class="clear-stage">
+        <div class="clear-backdrop"></div>
+        <div class="clear-scrim"></div>
+        <div class="clear-halo"></div>
+        <div class="clear-halo2"></div>
+
+        <img class="clear-mei" src="assets/mei/shy.png" alt="はぐれメイ">
+
+        <div class="clear-newrec">NEW RECORD!</div>
+
+        <div class="clear-trivia">
+          <span class="clear-trivia-tag">メイさん まめちしき</span>
+          <span class="js-trivia-text"></span>
+        </div>
+
+        <div class="clear-overlay">
+          <div class="clear-card-outer">
+            <div class="clear-card">
+              <div class="clear-title">かんせい！</div>
+              <div class="clear-frame-outer">
+                <div class="clear-frame-mat">
+                  <div class="clear-art js-clear-art"></div>
+                </div>
+              </div>
+              <div class="clear-cap">かべに かざったよ！</div>
+              <div class="clear-timerow">
+                <span class="clear-time-pill js-clear-time">TIME 00:00</span>
+                <button class="clear-next" id="clear-next-btn"><span>つぎへ ▶</span></button>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
-      <div id="confetti" class="confetti" aria-hidden="true"></div>
     </div>
 
     <!-- ===== メインメニュー（右クリック／☰ で表示） ===== -->
@@ -159,7 +183,7 @@
     </div>
   </main>
 
-  <script src="puzzles.js?v=10"></script>
-  <script src="game.js?v=10"></script>
+  <script src="puzzles.js?v=11"></script>
+  <script src="game.js?v=11"></script>
 </body>
 </html>
