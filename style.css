@@ -72,7 +72,7 @@ html, body {
   min-height: 100%;
   background: var(--bg_screen);
   color: var(--ink);
-  font-family: "DotGothic16", "Hiragino Kaku Gothic ProN", monospace;
+  font-family: "DotGothic16", "MPRounded", "Hiragino Kaku Gothic ProN", monospace;
   image-rendering: pixelated;
 }
 
