@@ -503,7 +503,7 @@ svg { display: block; }
 .talk-sparkle.s3 { top: 120px; left: 38px; font-size: 10px; }
 .talk-sparkle.s4 { top: 150px; right: 42px; font-size: 12px; }
 
-.talk-mei { position: absolute; left: 50%; bottom: -96px; transform: translateX(-50%);
+.talk-mei { position: absolute; left: 50%; bottom: -124px; transform: translateX(-50%);
   height: 420px; image-rendering: pixelated; filter: drop-shadow(0 6px 12px rgba(0,0,0,.4)); }
 
 /* 黒帯：上150 / 下394（下を大きく） */
