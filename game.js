@@ -716,7 +716,8 @@
     if (tv) tv.innerHTML = MEI_TRIVIA[current.id] || MEI_TRIVIA._default;
     clearOverlay.classList.toggle("is-record", newRecord);
     clearOverlay.classList.remove("hidden");
-    if (newRecord) setTimeout(() => sfx("record"), 260);
+    sfx("fanfare");                                       // かんせい！のファンファーレ
+    if (newRecord) setTimeout(() => sfx("record"), 1150); // 更新きらめきはファンファーレ後に
     updateStarCount();
   }
 
@@ -1029,8 +1030,18 @@
   modeMarkBtn.addEventListener("click", () => { sfx("button"); setMode("mark"); });
   clearNextBtn.addEventListener("click", () => { sfx("button"); onClearNext(); });
 
+  // ===== デバッグ表示（?debug=1 で有効・localStorage記憶。通常は隠す） =====
+  let DEBUG = false;
+  try {
+    const q = new URLSearchParams(location.search);
+    if (q.has("debug")) { DEBUG = q.get("debug") !== "0"; localStorage.setItem("dot-picross-debug", DEBUG ? "1" : "0"); }
+    else DEBUG = localStorage.getItem("dot-picross-debug") === "1";
+  } catch (e) {}
+  const glDebugEl = document.querySelector(".gl-debug");
+  if (glDebugEl && !DEBUG) glDebugEl.style.display = "none";
+
   // ===== 起動 =====
   renderSelect();
-  buildTalkDebugButtons();
+  if (DEBUG) buildTalkDebugButtons();
   playBgm("title");   // 初回タップでアンロックされて再生開始
 })();

@@ -130,6 +130,16 @@
     transition() { if (!ensure()) return; tone(300, ctx.currentTime, 0.16, { type: "triangle", gain: 0.28, slideTo: 720 }); },
     record(){ seq([N.C6, N.E6, N.G6, N.C7], { type: "square", gain: 0.3, step: 0.05 }); },
     clear() { seq([N.C5, N.E5, N.G5, N.C6, N.E6, N.G6], { type: "square", gain: 0.4, step: 0.1 }); },
+    fanfare() {
+      if (!ensure()) return;
+      const t = ctx.currentTime, g = 0.42;
+      [N.C5, N.E5, N.G5, N.C6].forEach((f, i) => tone(f, t + i * 0.1, 0.1, { type: "square", gain: g }));  // 呼び込み
+      const t2 = t + 0.44;
+      tone(N.C6, t2, 0.6, { type: "square", gain: g });         // 主和音（ジャーン）
+      tone(N.E6, t2, 0.6, { type: "triangle", gain: g * 0.7 });
+      tone(N.G6, t2, 0.6, { type: "triangle", gain: g * 0.6 });
+      [N.G6, N.C7, N.G6, N.C7].forEach((f, i) => tone(f, t2 + 0.14 + i * 0.08, 0.1, { type: "square", gain: g * 0.35 }));  // きらめき
+    },
   };
   window.SFX = API;
 })();
