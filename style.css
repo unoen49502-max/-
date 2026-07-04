@@ -303,9 +303,9 @@ body {
 .gl-debug { flex: 0 0 auto; padding: 9px 14px calc(10px + env(safe-area-inset-bottom));
   border-top: 3px solid var(--crim_d); background: rgba(58,20,36,.55); }
 .gl-debug-label { color: var(--cream); font-size: 11px; font-weight: 700; letter-spacing: 1px; }
-.gl-debug-btns { display: flex; gap: 8px; margin-top: 6px; flex-wrap: wrap; }
+.gl-debug-btns { display: grid; grid-template-columns: repeat(5, 1fr); gap: 7px; margin-top: 6px; }
 .gl-debug-btn { background: var(--crim); color: var(--btn-face); border: none; font-family: inherit;
-  font-weight: 700; font-size: 12px; padding: 6px 12px; cursor: pointer; box-shadow: 0 2px 0 var(--crim_dark); }
+  font-weight: 700; font-size: 12px; padding: 6px 2px; cursor: pointer; box-shadow: 0 2px 0 var(--crim_dark); text-align: center; }
 .gl-debug-btn:active { transform: translateY(2px); box-shadow: none; }
 
 /* ===== ゲーム画面（美術館の部屋） ===== */
