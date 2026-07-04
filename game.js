@@ -135,6 +135,32 @@
       { expr: "normal",   text: "メイさんも おうえん してあげるんだよね！" },
       { expr: "shy",      text: "まだまだ がんばろう！" },
     ],
+    30: [
+      { expr: "surprise", text: "３０もんめ！？<br>メイさんの コレクション、<br>ぜんぶ ぬられちゃうよ…" },
+      { expr: "pout",     text: "ちょっとは てかげん しなさいよね！<br>…なんて、うそ うそ◆" },
+      { expr: "shy",      text: "きみと かいてる じかん、<br>けっこう すきなんだよね◆" },
+    ],
+    35: [
+      { expr: "normal", text: "３５もん。 ここまで くると<br>もう せんせい みたいだね。" },
+      { expr: "shy",    text: "メイさん、おしえることが<br>なくなっちゃうかも…" },
+      { expr: "pout",   text: "でも まだ まけないんだからね！" },
+    ],
+    40: [
+      { expr: "normal", text: "４０もんめ、おめでとう。" },
+      { expr: "down",   text: "…じつは ひとりで はいしんするの、<br>ちょっと さみしかったんだ。" },
+      { expr: "shy",    text: "きみが きてくれて…<br>ほんとに うれしいんだよね◆" },
+    ],
+    45: [
+      { expr: "surprise", text: "え、４５もん！？<br>ほんとに ぜんぶ とく きなの…？" },
+      { expr: "normal",   text: "きみの えを ならべると、<br>すごい ギャラリーに なるね。" },
+      { expr: "shy",      text: "メイさんの じまんの こうぼうだよ◆" },
+    ],
+    50: [
+      { expr: "surprise", text: "５０もん…！<br>ぜんぶ、ぜんぶ かんせい<br>させちゃったの！？" },
+      { expr: "cry",      text: "…メイさん、こんなに たのしいの<br>ひさしぶりで…なみだ でちゃう◆" },
+      { expr: "normal",   text: "きみは メイさんの じまんの<br>いちばんでしで、あいぼうだよ。" },
+      { expr: "shy",      text: "これからも…ずっと<br>いっしょに かこうね◆" },
+    ],
   };
   let faceResetId = null;
   function setFace(name) {
