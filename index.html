@@ -19,7 +19,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=30">
+  <link rel="stylesheet" href="style.css?v=31">
 </head>
 <body>
   <main class="app">
@@ -57,6 +57,9 @@
         </button>
         <button class="ts-btn ts-btn-secondary" id="btn-gallery">
           <span>こうぼうの かべ</span>
+        </button>
+        <button class="ts-btn ts-btn-secondary" id="btn-options">
+          <span>⚙ せってい</span>
         </button>
       </div>
 
@@ -173,7 +176,7 @@
           <button id="btn-pause" class="round-btn" aria-label="きゅうけい"><span class="ri"><span class="ico">⏸</span></span></button>
           <button id="btn-reset" class="round-btn" aria-label="やりなおし"><span class="ri"><span class="ico">↻</span></span></button>
           <button id="btn-undo" class="round-btn" aria-label="もどす"><span class="ri"><span class="ico">↶</span></span></button>
-          <button id="back-btn" class="back-btn"><span>＜ かべへ</span></button>
+          <button id="back-btn" class="back-btn"><span>＜ おえかきへ</span></button>
         </div>
         <div class="tb-hint-note">タップ=ぬる ／ ながおし=✕マーク</div>
       </div>
@@ -187,7 +190,7 @@
         <div class="clear-halo"></div>
         <div class="clear-halo2"></div>
 
-        <img class="clear-mei" src="assets/mei/shy.png?v=30" alt="はぐれメイ">
+        <img class="clear-mei" src="assets/mei/shy.png?v=31" alt="はぐれメイ">
 
         <div class="clear-newrec">NEW RECORD!</div>
 
@@ -222,7 +225,7 @@
         <div class="talk-stage">
           <span class="talk-sparkle s1">✦</span><span class="talk-sparkle s2">✦</span>
           <span class="talk-sparkle s3">✦</span><span class="talk-sparkle s4">✦</span>
-          <img class="talk-mei js-talk-mei" src="assets/mei/shy.png?v=30" alt="はぐれメイ">
+          <img class="talk-mei js-talk-mei" src="assets/mei/shy.png?v=31" alt="はぐれメイ">
         </div>
         <div class="talk-bar-top"></div>
         <div class="talk-bar-bottom">
@@ -231,6 +234,23 @@
           <span class="talk-prog js-talk-prog">1／3</span>
           <span class="talk-next">▼</span>
         </div>
+      </div>
+    </div>
+
+    <!-- ===== オプション設定（タイトルの「せってい」から） ===== -->
+    <div id="options-overlay" class="overlay hidden">
+      <div class="menu-box options-box">
+        <div class="menu-title">オプション</div>
+
+        <div class="opt-section">サウンド</div>
+        <button id="opt-bgm" class="btn menu-item opt-toggle">BGM： ON</button>
+        <button id="opt-se" class="btn menu-item opt-toggle">こうかおん： ON</button>
+
+        <div class="opt-section">データ</div>
+        <button id="opt-reset" class="btn menu-item opt-danger">きろくを けす</button>
+        <div id="opt-reset-note" class="opt-note">クリア記録・ベストタイム・トークが すべて消えます</div>
+
+        <button id="opt-close" class="btn menu-item menu-secondary">とじる</button>
       </div>
     </div>
 
@@ -245,9 +265,9 @@
     </div>
   </main>
 
-  <script src="sfx.js?v=30"></script>
-  <script src="puzzles.js?v=30"></script>
-  <script src="game.js?v=30"></script>
+  <script src="sfx.js?v=31"></script>
+  <script src="puzzles.js?v=31"></script>
+  <script src="game.js?v=31"></script>
   <script>
     // ===== PWA: Service Worker 登録（オフライン＆ホーム画面インストール） =====
     if ("serviceWorker" in navigator) {

@@ -6,7 +6,7 @@ pg.on('pageerror',e=>errs.push('PAGEERROR: '+e.message));
 pg.on('console',m=>{ if(m.type()==='error') errs.push('CONSOLE: '+m.text()); });
 pg.on('response',r=>{ if(r.status()===404) p404.add(r.url().split('/').pop()); });
 const wait=ms=>pg.waitForTimeout(ms);
-await pg.goto('http://localhost:8099/index.html?v=30&debug=1',{waitUntil:'networkidle'}); await wait(300);
+await pg.goto('http://localhost:8099/index.html?v=31&debug=1',{waitUntil:'networkidle'}); await wait(300);
 await pg.click('#btn-start-stream'); await wait(200);
 const ids=await pg.evaluate(()=>window.PUZZLES.map(p=>p.id));
 // --- PASS A: layout/board integrity for ALL 50 (open+check+back) ---

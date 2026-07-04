@@ -452,6 +452,21 @@ svg { display: block; }
 .menu-item + .menu-item { margin-top: 11px; }
 .menu-item.menu-secondary { background: var(--crim_d); }
 
+/* ===== オプション設定 ===== */
+.options-box { min-width: 268px; }
+.opt-section {
+  font-family: "Melonano", "DotGothic16", sans-serif; font-size: 12px; color: var(--crim_d);
+  letter-spacing: 2px; text-align: left; margin: 4px 2px 8px; padding-bottom: 4px;
+  border-bottom: 2px dotted var(--pencil-off);
+}
+.opt-section:not(:first-of-type) { margin-top: 16px; }
+.opt-toggle.is-off { background: var(--pencil-off); color: var(--crim_d); }
+.opt-danger { background: var(--rose); }
+.opt-danger.is-armed { background: var(--crim); animation: opt-arm 600ms steps(2) infinite; }
+@keyframes opt-arm { 50% { filter: brightness(1.25); } }
+.opt-note { font-size: 10px; color: var(--locked-note); line-height: 1.5; margin: 7px 2px 4px; text-align: center; }
+.options-box .menu-secondary { margin-top: 16px; }
+
 /* ===== クリア画面 ===== */
 .overlay {
   position: fixed; inset: 0; background: var(--scrim);
@@ -460,7 +475,7 @@ svg { display: block; }
 @keyframes dropin { 0% { transform: translateY(-40px); } 100% { transform: translateY(0); } }
 
 /* ===== クリアオーバーレイ（完成ドット絵のお披露目） ===== */
-.clear-overlay-root { position: fixed; inset: 0; z-index: 1000; display: flex; justify-content: center; }
+.clear-overlay-root { position: fixed; inset: 0; z-index: 1000; display: flex; justify-content: center; background: var(--crim_dark); }
 .clear-stage { position: relative; width: 100%; max-width: 440px; height: 100%; overflow: hidden; }
 
 .clear-backdrop { position: absolute; inset: 0; background: var(--crim_dark); }

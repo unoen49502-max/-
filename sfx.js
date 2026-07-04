@@ -1,9 +1,12 @@
 /* ===== メイのドット工房 — サウンド（Web AudioでチップチューンSEを合成） ===== */
 (function () {
   "use strict";
-  const KEY = "dot-picross-muted";
-  let ctx = null, master = null, muted = false;
-  try { muted = localStorage.getItem(KEY) === "1"; } catch (e) {}
+  const KEY = "dot-picross-muted";        // 効果音（SE）ミュート ※旧バージョン互換
+  const KEY_BGM = "dot-picross-bgm-muted"; // BGMミュート
+  let ctx = null, master = null;
+  let seMuted = false, bgmMuted = false;
+  try { seMuted = localStorage.getItem(KEY) === "1"; } catch (e) {}
+  try { const b = localStorage.getItem(KEY_BGM); bgmMuted = b === null ? seMuted : b === "1"; } catch (e) {}
 
   function ensure() {
     if (ctx) return ctx;
@@ -11,7 +14,7 @@
     if (!AC) return null;
     ctx = new AC();
     master = ctx.createGain();
-    master.gain.value = muted ? 0 : 0.26;
+    master.gain.value = seMuted ? 0 : 0.26;
     master.connect(ctx.destination);
     return ctx;
   }
@@ -38,7 +41,7 @@
   }
   function startLooper(L) { L.active = true; try { L.prim.currentTime = 0; } catch (e) {} tryPlay(L.prim); }
   function bgmTickFn() {
-    const level = muted ? 0 : BGM_MAX;
+    const level = bgmMuted ? 0 : BGM_MAX;
     let any = false;
     Object.keys(loopers).forEach(name => {
       const L = loopers[name];
@@ -47,7 +50,7 @@
       if (L.gain < L.target) L.gain = Math.min(L.target, L.gain + 0.05);        // 曲切替フェードイン
       else if (L.gain > L.target) L.gain = Math.max(L.target, L.gain - 0.05);   // フェードアウト
       const p = L.prim, s = L.sec, dur = p.duration;
-      if (!muted && dur && !isNaN(dur)) {
+      if (!bgmMuted && dur && !isNaN(dur)) {
         if (!L.xf && p.currentTime >= dur - XLOOP) { L.xf = true; try { s.currentTime = 0; } catch (e) {} s.volume = 0; tryPlay(s); }
         if (L.xf) {
           const rem = dur - p.currentTime, k = Math.max(0, Math.min(1, 1 - rem / XLOOP));
@@ -57,7 +60,7 @@
           return;
         }
       }
-      if (muted) { p.volume = 0; s.volume = 0; }
+      if (bgmMuted) { p.volume = 0; s.volume = 0; }
       else p.volume = level * L.gain;
       if (L.gain <= 0.0001 && L.target <= 0) { L.active = false; p.pause(); s.pause(); p.volume = 0; s.volume = 0; }
     });
@@ -68,11 +71,11 @@
     const L = looper(name); if (!L) return;
     if (bgmCur !== name) { Object.keys(loopers).forEach(n => { loopers[n].target = 0; }); bgmCur = name; }
     L.target = 1;
-    if (!muted && !L.active) startLooper(L);
+    if (!bgmMuted && !L.active) startLooper(L);
     startTick();
   }
   function bgmUnlock() {
-    if (!bgmCur || muted) return;
+    if (!bgmCur || bgmMuted) return;
     const L = looper(bgmCur); if (!L) return;
     L.active = true; tryPlay(L.prim); if (L.xf) tryPlay(L.sec);
     startTick();
@@ -103,22 +106,34 @@
 
   const N = { C5: 523, D5: 587, E5: 659, F5: 698, G5: 784, A5: 880, B5: 988, C6: 1047, D6: 1175, E6: 1319, G6: 1568, C7: 2093 };
 
+  function setSeMuted(m) {
+    seMuted = !!m;
+    try { localStorage.setItem(KEY, seMuted ? "1" : "0"); } catch (e) {}
+    if (master) master.gain.value = seMuted ? 0 : 0.26;
+  }
+  function setBgmMuted(m) {
+    bgmMuted = !!m;
+    try { localStorage.setItem(KEY_BGM, bgmMuted ? "1" : "0"); } catch (e) {}
+    if (bgmMuted) {
+      Object.keys(loopers).forEach(n => { const L = loopers[n]; L.a.pause(); L.b.pause(); L.a.volume = 0; L.b.volume = 0; });
+    } else if (bgmCur) {
+      const L = looper(bgmCur); L.target = 1; L.active = true;
+      tryPlay(L.prim); if (L.xf) tryPlay(L.sec);
+      startTick();
+    }
+  }
+
   const API = {
     unlock: unlock,
-    setMuted(m) {
-      muted = !!m;
-      try { localStorage.setItem(KEY, muted ? "1" : "0"); } catch (e) {}
-      if (master) master.gain.value = muted ? 0 : 0.26;
-      if (muted) {
-        Object.keys(loopers).forEach(n => { const L = loopers[n]; L.a.pause(); L.b.pause(); L.a.volume = 0; L.b.volume = 0; });
-      } else if (bgmCur) {
-        const L = looper(bgmCur); L.target = 1; L.active = true;
-        tryPlay(L.prim); if (L.xf) tryPlay(L.sec);
-        startTick();
-      }
-    },
+    // BGM／SEを個別に制御（オプション画面）
+    setBgmMuted(m) { setBgmMuted(m); },
+    isBgmMuted() { return bgmMuted; },
+    setSeMuted(m) { setSeMuted(m); },
+    isSeMuted() { return seMuted; },
+    // 一括ミュート（ゲーム内☰メニューのサウンドON/OFF）
+    setMuted(m) { setBgmMuted(m); setSeMuted(m); },
+    isMuted() { return seMuted && bgmMuted; },
     bgm(name) { bgmPlay(name); },
-    isMuted() { return muted; },
 
     fill()  { if (!ensure()) return; tone(700, ctx.currentTime, 0.045, { gain: 0.4 }); },
     erase() { if (!ensure()) return; tone(320, ctx.currentTime, 0.06, { gain: 0.3, slideTo: 180 }); },

@@ -947,6 +947,73 @@
     e.preventDefault(); openMenu();
   });
 
+  // ===== オプション設定（タイトルの「⚙ せってい」から） =====
+  const btnOptions = document.getElementById("btn-options");
+  const optionsOverlay = document.getElementById("options-overlay");
+  const optBgmBtn = document.getElementById("opt-bgm");
+  const optSeBtn = document.getElementById("opt-se");
+  const optResetBtn = document.getElementById("opt-reset");
+  const optResetNote = document.getElementById("opt-reset-note");
+  const optCloseBtn = document.getElementById("opt-close");
+  const RESET_NOTE = "クリア記録・ベストタイム・トークが すべて消えます";
+  let resetArmed = false, resetArmTimer = null;
+  function updateOptionLabels() {
+    if (optBgmBtn) {
+      const off = !!(window.SFX && window.SFX.isBgmMuted());
+      optBgmBtn.textContent = "BGM： " + (off ? "OFF" : "ON");
+      optBgmBtn.classList.toggle("is-off", off);
+    }
+    if (optSeBtn) {
+      const off = !!(window.SFX && window.SFX.isSeMuted());
+      optSeBtn.textContent = "こうかおん： " + (off ? "OFF" : "ON");
+      optSeBtn.classList.toggle("is-off", off);
+    }
+  }
+  function disarmReset() {
+    resetArmed = false;
+    if (resetArmTimer) { clearTimeout(resetArmTimer); resetArmTimer = null; }
+    if (optResetBtn) { optResetBtn.classList.remove("is-armed"); optResetBtn.textContent = "きろくを けす"; }
+    if (optResetNote) optResetNote.textContent = RESET_NOTE;
+  }
+  function openOptions() {
+    if (!optionsOverlay) return;
+    disarmReset();
+    updateOptionLabels();
+    optionsOverlay.classList.remove("hidden");
+    sfx("button");
+  }
+  function closeOptions() { if (optionsOverlay) optionsOverlay.classList.add("hidden"); disarmReset(); }
+  if (btnOptions) btnOptions.addEventListener("click", openOptions);
+  if (optCloseBtn) optCloseBtn.addEventListener("click", () => { sfx("button"); closeOptions(); });
+  if (optionsOverlay) optionsOverlay.addEventListener("click", e => { if (e.target === optionsOverlay) closeOptions(); });
+  document.addEventListener("keydown", e => { if (e.key === "Escape") closeOptions(); });
+  if (optBgmBtn) optBgmBtn.addEventListener("click", () => {
+    if (window.SFX) window.SFX.setBgmMuted(!window.SFX.isBgmMuted());
+    updateOptionLabels(); sfx("button");
+  });
+  if (optSeBtn) optSeBtn.addEventListener("click", () => {
+    if (window.SFX) window.SFX.setSeMuted(!window.SFX.isSeMuted());
+    updateOptionLabels(); sfx("button");   // SEをONに戻したときだけ鳴る
+  });
+  if (optResetBtn) optResetBtn.addEventListener("click", () => {
+    if (!resetArmed) {
+      resetArmed = true;
+      optResetBtn.classList.add("is-armed");
+      optResetBtn.textContent = "ほんとうに けす？";
+      if (optResetNote) optResetNote.textContent = "もう一度おすと 消えます（4秒で キャンセル）";
+      sfx("pause");
+      resetArmTimer = setTimeout(disarmReset, 4000);
+      return;
+    }
+    try { localStorage.removeItem(STORAGE_KEY); } catch (e) {}
+    try { localStorage.removeItem(TALK_KEY); } catch (e) {}
+    disarmReset();
+    if (optResetNote) optResetNote.textContent = "きろくを けしました！";
+    renderSelect();
+    updateStarCount();
+    sfx("record");
+  });
+
   // ===== 会話イベント（ファミコン風カットシーン） =====
   const TALK_KEY = "dot-picross-talks";
   const reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
