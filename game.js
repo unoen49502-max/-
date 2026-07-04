@@ -92,6 +92,18 @@
     turtle:'かめは <span class="em">100ねん いじょう</span>いきることも あるんだよ。メイさんより ながいね◆',
     airplane:'ひこうきが とべるのは、はねの うえと したで <span class="em">くうきの はやさ</span>が ちがうからなんだよ◆',
     snowman:'ゆきが しろく みえるのは、<span class="em">ひかりを ぜんぶ はねかえす</span>からなんだよ◆',
+    castle:'おしろの まわりの ほりは、てきを ふせぐ ためだけじゃなく <span class="em">にもつを はこぶ みち</span>でも あったんだよ◆',
+    sword: 'むかしの けんは、<span class="em">やわらかい てつと かたい てつ</span>を かさねて おれにくく つくったんだよ◆',
+    clock: 'とけいの はりが <span class="em">みぎまわり</span>なのは、むかしの ひどけいの かげの うごきに あわせたからなんだよ◆',
+    butterfly:'ちょうちょは <span class="em">あしで あじを かんじる</span>んだよ。とまった しゅんかんに わかるの◆',
+    xmastree:'ツリーに もみの木を つかうのは、ふゆでも <span class="em">みどりの まま</span>で いのちの しるしだからなんだって◆',
+    rocket:'ロケットの おもさの ほとんどは <span class="em">ねんりょう</span>なんだよ。とぶだけで たいへんなの◆',
+    fox:   'きつねは ゆきの したの えものの おとを <span class="em">じばんの ちから</span>も つかって さがすって いわれてるんだよ◆',
+    guitar:'ギターの おとが おおきく ひびくのは、<span class="em">なかの くうどう</span>で おとが きょうめいするからなんだよ◆',
+    dino:  'いちばん おおきな きょうりゅうは <span class="em">バスより ながい</span>くびを もってたんだって◆',
+    giraffe:'きりんの くびの ほねは、じつは <span class="em">にんげんと おなじ7こ</span>なんだよ。しってた？◆',
+    fish:  'こいは <span class="em">たきを のぼると りゅうに なる</span>って いいつたえが あるんだよ。がんばりやさんだね◆',
+    boat:  'ヨットは かぜに むかっても <span class="em">ジグザグに すすめば</span>まえに いけるんだよ◆',
     _default: 'こんなのも といちゃうなんて、メイさん ちょっと かんどうしちゃった◆',
   };
 
@@ -271,7 +283,8 @@
 
       const info = document.createElement("span");
       info.className = "ss-info-row";
-      const pencils = [0, 1, 2].map(i => `<i class="${i < p.difficulty ? "on" : ""}">✎</i>`).join("");
+      const pencilSlots = Math.max(3, p.difficulty);
+      const pencils = Array.from({ length: pencilSlots }, (_, i) => `<i class="${i < p.difficulty ? "on" : ""}">✎</i>`).join("");
       info.innerHTML =
         `<span class="ss-size-pill">${cols}×${rows}</span>` +
         `<span class="ss-diff">${pencils}</span>` +
@@ -325,10 +338,13 @@
     const rClues = rowClues(current.solution);
     const cClues = colClues(current.solution);
 
-    // 1列目=ヒント欄(48px)、以降はセルを等分（minmax(0,1fr)で溢れを防ぐ）
-    const hintCol = cols >= 10 ? 44 : 48;
+    // 1列目=ヒント欄。行ヒントの最大個数に合わせて幅を可変（大きい盤で溢れないように）
+    const maxRowClueLen = Math.max(1, ...rClues.map(c => c.length));
+    const hintCol = Math.max(40, Math.min(78, maxRowClueLen * 11 + 6));
     board.style.gridTemplateColumns = `${hintCol}px repeat(${cols}, minmax(0, 1fr))`;
     board.style.gridTemplateRows = "";
+    // 大きい盤はヒント文字を小さめに（15×15など）
+    board.classList.toggle("board-lg", cols >= 12);
     board.innerHTML = "";
 
     // 左上コーナー
