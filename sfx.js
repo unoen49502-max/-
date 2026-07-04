@@ -19,7 +19,7 @@
 
   // ===== BGM（mp3・画面ごと切替＋ループの継ぎ目をクロスフェードして無音ゼロに） =====
   const BGM_MAX = 0.42;
-  const XLOOP = 2.4;     // ループ継ぎ目のクロスフェード秒（曲末尾の無音をまたぐ）
+  const XLOOP = 1.0;     // ループ継ぎ目のクロスフェード秒（短め・かけすぎ防止）
   const BGM_SRC = {
     title:   "assets/bgm/title.mp3?v=26",
     atelier: "assets/bgm/atelier.mp3?v=26",
@@ -51,8 +51,8 @@
         if (!L.xf && p.currentTime >= dur - XLOOP) { L.xf = true; try { s.currentTime = 0; } catch (e) {} s.volume = 0; tryPlay(s); }
         if (L.xf) {
           const rem = dur - p.currentTime, k = Math.max(0, Math.min(1, 1 - rem / XLOOP));
-          s.volume = level * L.gain * k;
-          p.volume = level * L.gain * (1 - k);
+          s.volume = level * L.gain * Math.sin(k * Math.PI / 2);   // 等パワー（中央で音量が落ちない）
+          p.volume = level * L.gain * Math.cos(k * Math.PI / 2);
           if (p.currentTime >= dur - 0.06 || p.ended || rem <= 0.05) { p.pause(); p.volume = 0; L.prim = s; L.sec = p; L.xf = false; }
           return;
         }
