@@ -8,6 +8,10 @@
   // --- DOM ---
   const selectScreen = document.getElementById("select-screen");
   const gameScreen = document.getElementById("game-screen");
+  const galleryScreen = document.getElementById("gallery-screen");
+  const galleryList = document.getElementById("gallery-list");
+  const galleryTalkBtns = document.getElementById("gallery-talk-btns");
+  const glMenuBtn = document.getElementById("gl-menu-btn");
   const puzzleList = document.getElementById("puzzle-list");
   const board = document.getElementById("board");
   const puzzleNameEl = document.getElementById("puzzle-name");
@@ -280,6 +284,7 @@
 
     puzzleNameEl.textContent = p.name;
     selectScreen.classList.add("hidden");
+    galleryScreen.classList.add("hidden");
     gameScreen.classList.remove("hidden");
     clearOverlay.classList.add("hidden");
     resetView();
@@ -712,6 +717,7 @@
     if (idleId) clearTimeout(idleId);
     clearOverlay.classList.add("hidden");
     gameScreen.classList.add("hidden");
+    galleryScreen.classList.add("hidden");
     selectScreen.classList.remove("hidden");
     renderSelect();
     setFace("neutral");
@@ -742,6 +748,7 @@
   function enterSelectFromTitle() {
     if (titleScreen) titleScreen.classList.add("hidden");
     gameScreen.classList.add("hidden");
+    galleryScreen.classList.add("hidden");
     clearOverlay.classList.add("hidden");
     selectScreen.classList.remove("hidden");
     renderSelect();
@@ -749,8 +756,55 @@
     setSpeech(SPEECH.select);
   }
   if (btnStart) btnStart.addEventListener("click", enterSelectFromTitle);
-  // TODO: #gallery-screen 実装後に遷移先を差し替え。暫定で工房の壁へ。
-  if (btnGallery) btnGallery.addEventListener("click", enterSelectFromTitle);
+  if (btnGallery) btnGallery.addEventListener("click", enterGalleryFromTitle);
+
+  // ===== ギャラリー（こうぼうの かべ）：完成した絵を額縁で飾る壁 =====
+  function renderGallery() {
+    const solved = loadSolved();
+    galleryList.innerHTML = "";
+    PUZZLES.forEach(p => {
+      const cleared = !!solved[p.id];
+      const card = document.createElement("div");
+      card.className = "gl-card" + (cleared ? "" : " gl-locked");
+      const frame = document.createElement("div"); frame.className = "gl-frame";
+      const mat = document.createElement("div"); mat.className = "gl-mat";
+      if (cleared) {
+        mat.appendChild(buildThumb(p.solution));
+      } else {
+        const q = document.createElement("span"); q.className = "gl-q"; q.textContent = "？";
+        mat.appendChild(q);
+      }
+      frame.appendChild(mat);
+      const name = document.createElement("div"); name.className = "gl-name";
+      name.textContent = cleared ? p.name : "？？？";
+      card.append(frame, name);
+      galleryList.appendChild(card);
+    });
+  }
+  function showGallery() {
+    if (titleScreen) titleScreen.classList.add("hidden");
+    gameScreen.classList.add("hidden");
+    selectScreen.classList.add("hidden");
+    clearOverlay.classList.add("hidden");
+    galleryScreen.classList.remove("hidden");
+    renderGallery();
+  }
+  function enterGalleryFromTitle() { showGallery(); }
+
+  // デバッグ：トークイベントを最初から解放（節目に関係なく再生）
+  function buildTalkDebugButtons() {
+    if (!galleryTalkBtns) return;
+    galleryTalkBtns.innerHTML = "";
+    Object.keys(TALK_EVENTS).map(Number).sort((a, b) => a - b).forEach(n => {
+      const btn = document.createElement("button");
+      btn.className = "gl-debug-btn";
+      btn.textContent = n + "もん";
+      btn.addEventListener("click", () => showTalkEvent(n, showGallery));
+      galleryTalkBtns.appendChild(btn);
+    });
+  }
+  if (glMenuBtn) glMenuBtn.addEventListener("click", openMenu);
+  galleryScreen.addEventListener("contextmenu", e => { e.preventDefault(); openMenu(); });
 
   // ===== メインメニュー（右クリック／☰） =====
   function openMenu() { if (menuOverlay) menuOverlay.classList.remove("hidden"); }
@@ -764,6 +818,7 @@
     setPauseUI(false);
     clearOverlay.classList.add("hidden");
     gameScreen.classList.add("hidden");
+    galleryScreen.classList.add("hidden");
     selectScreen.classList.add("hidden");
     if (titleScreen) titleScreen.classList.remove("hidden");
     setFace("neutral");
@@ -864,4 +919,5 @@
 
   // ===== 起動 =====
   renderSelect();
+  buildTalkDebugButtons();
 })();

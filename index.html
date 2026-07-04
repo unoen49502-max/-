@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=15">
+  <link rel="stylesheet" href="style.css?v=16">
 </head>
 <body>
   <main class="app">
@@ -72,9 +72,40 @@
         </div>
       </div>
 
-      <div class="ss-heading">こうぼうの かべ</div>
+      <div class="ss-heading">おえかき</div>
 
       <div class="ss-grid" id="puzzle-list"></div>
+    </section>
+
+    <!-- ===== ギャラリー画面（こうぼうの かべ） ===== -->
+    <section id="gallery-screen" class="hidden">
+      <div class="ss-statusbar">
+        <div><span class="ss-dot">●</span>OFFLINE</div>
+        <div class="ss-bar-right">まもなく かいてん…<button id="gl-menu-btn" class="menu-btn" aria-label="メニュー">☰ メニュー</button></div>
+      </div>
+
+      <div class="ss-greet">
+        <div class="ss-avatar-outer">
+          <div class="ss-avatar-inner"><img src="assets/mei_bust.png" alt="はぐれメイ"></div>
+        </div>
+        <div class="ss-speech">
+          <span class="ss-speech-name">はぐれメイ</span>
+          <div class="ss-speech-border ss-n8">
+            <div class="ss-speech-bar ss-n5">
+              <div class="ss-speech-text">かんせいした えを かざってるよ◆</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="ss-heading">こうぼうの かべ</div>
+
+      <div class="gl-grid" id="gallery-list"></div>
+
+      <div class="gl-debug">
+        <span class="gl-debug-label">🔧 トーク（デバッグ・最初から解放）</span>
+        <div class="gl-debug-btns" id="gallery-talk-btns"></div>
+      </div>
     </section>
 
     <!-- ===== ゲーム画面（美術館の部屋・スマホ主軸） ===== -->
@@ -201,7 +232,7 @@
     </div>
   </main>
 
-  <script src="puzzles.js?v=15"></script>
-  <script src="game.js?v=15"></script>
+  <script src="puzzles.js?v=16"></script>
+  <script src="game.js?v=16"></script>
 </body>
 </html>
