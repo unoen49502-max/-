@@ -300,8 +300,21 @@
     updateStarCount();
   }
 
+  // ===== 背景の部屋（5種からランダム） =====
+  const ROOMS = [
+    "assets/rooms/room1.png?v=22", "assets/rooms/room2.png?v=22",
+    "assets/rooms/room3.png?v=22", "assets/rooms/room4.png?v=22",
+    "assets/rooms/room5.png?v=22",
+  ];
+  ROOMS.forEach(src => { const im = new Image(); im.src = src; });  // 先読み
+  function pickRoom() {
+    const src = ROOMS[Math.floor(Math.random() * ROOMS.length)];
+    gameScreen.style.setProperty("--room-img", `url("${src}")`);
+  }
+
   // ===== ゲーム開始 =====
   function startPuzzle(p) {
+    pickRoom();
     current = p;
     rows = p.solution.length;
     cols = p.solution[0].length;
