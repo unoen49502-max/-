@@ -494,8 +494,9 @@ svg { display: block; }
   font-family: "Melonano", "DotGothic16", sans-serif; cursor: pointer; }
 .talk-scene { position: relative; width: 100%; max-width: 440px; height: 100%; overflow: hidden; background: #000; }
 
-/* 中央の見せ帯：派手ピンクのスポットライト（上下の黒帯にフェード） */
-.talk-stage { position: absolute; left: 0; right: 0; top: 150px; bottom: 394px; overflow: hidden;
+/* 中央の見せ帯：派手ピンクのスポットライト（上下の黒帯にフェード）
+   高さは画面比率で決める（fixed pxだと短い端末で帯が潰れて顔が隠れるため） */
+.talk-stage { position: absolute; left: 0; right: 0; top: 17.8%; bottom: 46.7%; overflow: hidden;
   background: radial-gradient(ellipse 78% 95% at 50% 52%, var(--talk-hi) 0%, var(--talk-mid) 48%, var(--talk-lo) 100%); }
 .talk-sparkle { position: absolute; color: #fff; opacity: .8; }
 .talk-sparkle.s1 { top: 26px; left: 52px; font-size: 12px; }
@@ -503,12 +504,14 @@ svg { display: block; }
 .talk-sparkle.s3 { top: 120px; left: 38px; font-size: 10px; }
 .talk-sparkle.s4 { top: 150px; right: 42px; font-size: 12px; }
 
-.talk-mei { position: absolute; left: 50%; bottom: -124px; transform: translateX(-50%);
-  height: 420px; image-rendering: pixelated; filter: drop-shadow(0 6px 12px rgba(0,0,0,.4)); }
+/* 上端基準・帯比率で配置：画面の高さが変わっても顔が必ず帯の中に入る。
+   はみ出す足元は .talk-stage の overflow:hidden でクリップ */
+.talk-mei { position: absolute; left: 50%; top: -7%; transform: translateX(-50%);
+  height: 140%; image-rendering: pixelated; filter: drop-shadow(0 6px 12px rgba(0,0,0,.4)); }
 
-/* 黒帯：上150 / 下394（下を大きく） */
-.talk-bar-top { position: absolute; top: 0; left: 0; right: 0; height: 150px; background: #000; z-index: 10; }
-.talk-bar-bottom { position: absolute; bottom: 0; left: 0; right: 0; height: 394px; background: #000; z-index: 10; padding: 34px 30px 0; }
+/* 黒帯：上17.8% / 下46.7%（下を大きく／画面比率で潰れない） */
+.talk-bar-top { position: absolute; top: 0; left: 0; right: 0; height: 17.8%; background: #000; z-index: 10; }
+.talk-bar-bottom { position: absolute; bottom: 0; left: 0; right: 0; height: 46.7%; background: #000; z-index: 10; padding: 34px 30px 0; }
 
 .talk-name { color: #fff; font-size: 15px; letter-spacing: 3px; margin-bottom: 22px; }
 .talk-text { color: #fff; font-size: 19px; line-height: 2.1; letter-spacing: 2px; }
