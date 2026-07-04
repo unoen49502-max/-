@@ -364,14 +364,17 @@ body {
 .colhint { width: 100%; margin: 2px 1px; padding: 3px 0 4px; background: var(--card); border: 1.5px solid var(--hint-bd); border-radius: 4px;
   font-size: 12px; font-weight: 700; line-height: 1.15; text-align: center;
   box-shadow: inset 0 1.5px 0 rgba(255,255,255,.85), inset 0 -2px 0 rgba(160,64,96,.35), 0 1px 2px rgba(88,32,56,.35); }
-.rowhint-wrap { display: flex; align-items: center; justify-content: flex-end; padding: 1px 0; }
-.rowhint { margin: 1px 3px 1px 2px; padding: 2px 8px 3px; min-width: 44px; background: var(--card); border: 1.5px solid var(--hint-bd); border-radius: 4px;
-  font-size: 12px; font-weight: 700; letter-spacing: 2px; text-align: right;
+.rowhint-wrap { display: flex; align-items: center; justify-content: center; padding: 1px 0; min-width: 0; }
+.rowhint { width: 100%; min-width: 0; box-sizing: border-box; margin: 1px 2px; padding: 2px 3px 3px;
+  background: var(--card); border: 1.5px solid var(--hint-bd); border-radius: 4px;
+  font-size: 12px; font-weight: 700; letter-spacing: 0; text-align: center; white-space: nowrap;
   box-shadow: inset 0 1.5px 0 rgba(255,255,255,.85), inset 0 -2px 0 rgba(160,64,96,.35), 0 1px 2px rgba(88,32,56,.35); }
+.rowhint span { padding: 0 2px; }
 
 /* 大きい盤（12×以上）はヒント・記号を小さめにして詰める */
-.board-lg .colhint, .board-lg .rowhint { font-size: 10px; padding: 2px 0 2px; letter-spacing: 1px; border-radius: 3px; }
-.board-lg .rowhint { min-width: 0; padding: 1px 4px 2px; margin: 1px 2px 1px 1px; }
+.board-lg .colhint, .board-lg .rowhint { font-size: 10px; padding: 2px 0 2px; letter-spacing: 0; border-radius: 3px; }
+.board-lg .rowhint { padding: 1px 1px 2px; margin: 1px 1px; }
+.board-lg .rowhint span { padding: 0 1px; }
 .board-lg .colhint { margin: 1px; }
 .board-lg .cell { font-size: 10px; }
 

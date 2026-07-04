@@ -17,41 +17,66 @@
   }
   function unlock() { const c = ensure(); if (c && c.state === "suspended") c.resume(); bgmUnlock(); }
 
-  // ===== BGM（mp3・画面ごとにループ＋クロスフェード。サウンドトグルに連動） =====
+  // ===== BGM（mp3・画面ごと切替＋ループの継ぎ目をクロスフェードして無音ゼロに） =====
   const BGM_MAX = 0.42;
+  const XLOOP = 2.4;     // ループ継ぎ目のクロスフェード秒（曲末尾の無音をまたぐ）
   const BGM_SRC = {
     title:   "assets/bgm/title.mp3?v=26",
     atelier: "assets/bgm/atelier.mp3?v=26",
     play:    "assets/bgm/play.mp3?v=26",
     talk:    "assets/bgm/talk.mp3?v=26",
   };
-  const bgmEl = {};
-  let bgmCur = null, bgmFadeId = null;
-  function bgmGet(name) {
-    if (bgmEl[name]) return bgmEl[name];
-    if (!BGM_SRC[name]) return null;
-    const a = new Audio(BGM_SRC[name]); a.loop = true; a.preload = "auto"; a.volume = 0;
-    bgmEl[name] = a; return a;
-  }
+  const loopers = {};
+  let bgmCur = null, bgmTick = null;
   function tryPlay(a) { if (!a) return; const p = a.play(); if (p && p.catch) p.catch(() => {}); }
-  function bgmPlay(name) {
-    if (!BGM_SRC[name]) return;
-    if (bgmCur === name) { if (!muted) { const a = bgmGet(name); a.volume = BGM_MAX; tryPlay(a); } return; }
-    const prev = bgmCur ? bgmGet(bgmCur) : null;
-    const next = bgmGet(name);
-    bgmCur = name;
-    if (muted) { if (prev) prev.pause(); return; }   // ミュート中は切替だけ記録
-    next.volume = 0; tryPlay(next);
-    if (bgmFadeId) clearInterval(bgmFadeId);
-    let t = 0; const steps = 14;
-    bgmFadeId = setInterval(() => {
-      t++; const k = t / steps;
-      next.volume = Math.min(BGM_MAX, BGM_MAX * k);
-      if (prev) prev.volume = Math.max(0, BGM_MAX * (1 - k));
-      if (t >= steps) { clearInterval(bgmFadeId); bgmFadeId = null; if (prev) prev.pause(); next.volume = BGM_MAX; }
-    }, 45);
+  function looper(name) {
+    if (loopers[name]) return loopers[name];
+    if (!BGM_SRC[name]) return null;
+    const a = new Audio(BGM_SRC[name]), b = new Audio(BGM_SRC[name]);
+    [a, b].forEach(e => { e.preload = "auto"; e.loop = false; e.volume = 0; });
+    return (loopers[name] = { a: a, b: b, prim: a, sec: b, gain: 0, target: 0, xf: false, active: false });
   }
-  function bgmUnlock() { if (bgmCur && !muted) { const a = bgmGet(bgmCur); a.volume = BGM_MAX; tryPlay(a); } }
+  function startLooper(L) { L.active = true; try { L.prim.currentTime = 0; } catch (e) {} tryPlay(L.prim); }
+  function bgmTickFn() {
+    const level = muted ? 0 : BGM_MAX;
+    let any = false;
+    Object.keys(loopers).forEach(name => {
+      const L = loopers[name];
+      if (!L.active && L.gain <= 0.0001) return;
+      any = true;
+      if (L.gain < L.target) L.gain = Math.min(L.target, L.gain + 0.05);        // 曲切替フェードイン
+      else if (L.gain > L.target) L.gain = Math.max(L.target, L.gain - 0.05);   // フェードアウト
+      const p = L.prim, s = L.sec, dur = p.duration;
+      if (!muted && dur && !isNaN(dur)) {
+        if (!L.xf && p.currentTime >= dur - XLOOP) { L.xf = true; try { s.currentTime = 0; } catch (e) {} s.volume = 0; tryPlay(s); }
+        if (L.xf) {
+          const rem = dur - p.currentTime, k = Math.max(0, Math.min(1, 1 - rem / XLOOP));
+          s.volume = level * L.gain * k;
+          p.volume = level * L.gain * (1 - k);
+          if (p.currentTime >= dur - 0.06 || p.ended || rem <= 0.05) { p.pause(); p.volume = 0; L.prim = s; L.sec = p; L.xf = false; }
+          return;
+        }
+      }
+      if (muted) { p.volume = 0; s.volume = 0; }
+      else p.volume = level * L.gain;
+      if (L.gain <= 0.0001 && L.target <= 0) { L.active = false; p.pause(); s.pause(); p.volume = 0; s.volume = 0; }
+    });
+    if (!any && bgmTick) { clearInterval(bgmTick); bgmTick = null; }
+  }
+  function startTick() { if (!bgmTick) bgmTick = setInterval(bgmTickFn, 60); }
+  function bgmPlay(name) {
+    const L = looper(name); if (!L) return;
+    if (bgmCur !== name) { Object.keys(loopers).forEach(n => { loopers[n].target = 0; }); bgmCur = name; }
+    L.target = 1;
+    if (!muted && !L.active) startLooper(L);
+    startTick();
+  }
+  function bgmUnlock() {
+    if (!bgmCur || muted) return;
+    const L = looper(bgmCur); if (!L) return;
+    L.active = true; tryPlay(L.prim); if (L.xf) tryPlay(L.sec);
+    startTick();
+  }
 
   // 1音（矩形波などのエンベロープ付き）
   function tone(freq, t0, dur, opt) {
@@ -84,7 +109,13 @@
       muted = !!m;
       try { localStorage.setItem(KEY, muted ? "1" : "0"); } catch (e) {}
       if (master) master.gain.value = muted ? 0 : 0.26;
-      if (bgmCur) { const a = bgmGet(bgmCur); if (muted) { a.pause(); } else { a.volume = BGM_MAX; tryPlay(a); } }
+      if (muted) {
+        Object.keys(loopers).forEach(n => { const L = loopers[n]; L.a.pause(); L.b.pause(); L.a.volume = 0; L.b.volume = 0; });
+      } else if (bgmCur) {
+        const L = looper(bgmCur); L.target = 1; L.active = true;
+        tryPlay(L.prim); if (L.xf) tryPlay(L.sec);
+        startTick();
+      }
     },
     bgm(name) { bgmPlay(name); },
     isMuted() { return muted; },

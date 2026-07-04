@@ -394,9 +394,10 @@
     const rClues = rowClues(current.solution);
     const cClues = colClues(current.solution);
 
-    // 1列目=ヒント欄。行ヒントの最大個数に合わせて幅を可変（大きい盤で溢れないように）
+    // 1列目=ヒント欄。行ヒントの最大個数×文字幅で必要幅を確保（数字が欄からはみ出さないように）
     const maxRowClueLen = Math.max(1, ...rClues.map(c => c.length));
-    const hintCol = Math.max(40, Math.min(78, maxRowClueLen * 11 + 6));
+    const charW = cols >= 12 ? 10 : 13;
+    const hintCol = Math.max(46, Math.min(90, maxRowClueLen * charW + 12));
     board.style.gridTemplateColumns = `${hintCol}px repeat(${cols}, minmax(0, 1fr))`;
     board.style.gridTemplateRows = "";
     // 大きい盤はヒント文字を小さめに（15×15など）
@@ -433,7 +434,7 @@
       rh.dataset.row = r;
       rClues[r].forEach((n, i) => {
         const s = document.createElement("span");
-        s.textContent = n; s.style.color = hintColor(i); s.style.padding = "0 2px";
+        s.textContent = n; s.style.color = hintColor(i);
         rh.appendChild(s);
       });
       rwrap.appendChild(rh);
