@@ -858,8 +858,8 @@
   function renderKoma() {
     const koma = talkQueue[talkIdx];
     if (talkMei) {
-      talkMei.onerror = function () { this.onerror = null; this.src = "assets/mei/shy.png"; };  // 未配置表情はshyで代替
-      talkMei.src = "assets/mei/" + koma.expr + ".png";
+      talkMei.onerror = function () { this.onerror = null; this.src = "assets/mei/shy.png?v=17"; };  // 未配置表情はshyで代替
+      talkMei.src = "assets/mei/" + koma.expr + ".png?v=17";
     }
     if (talkProgEl) talkProgEl.textContent = (talkIdx + 1) + "／" + talkQueue.length;
     typeText(koma.text);
