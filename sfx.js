@@ -15,7 +15,43 @@
     master.connect(ctx.destination);
     return ctx;
   }
-  function unlock() { const c = ensure(); if (c && c.state === "suspended") c.resume(); }
+  function unlock() { const c = ensure(); if (c && c.state === "suspended") c.resume(); bgmUnlock(); }
+
+  // ===== BGM（mp3・画面ごとにループ＋クロスフェード。サウンドトグルに連動） =====
+  const BGM_MAX = 0.42;
+  const BGM_SRC = {
+    title:   "assets/bgm/title.mp3?v=26",
+    atelier: "assets/bgm/atelier.mp3?v=26",
+    play:    "assets/bgm/play.mp3?v=26",
+    talk:    "assets/bgm/talk.mp3?v=26",
+  };
+  const bgmEl = {};
+  let bgmCur = null, bgmFadeId = null;
+  function bgmGet(name) {
+    if (bgmEl[name]) return bgmEl[name];
+    if (!BGM_SRC[name]) return null;
+    const a = new Audio(BGM_SRC[name]); a.loop = true; a.preload = "auto"; a.volume = 0;
+    bgmEl[name] = a; return a;
+  }
+  function tryPlay(a) { if (!a) return; const p = a.play(); if (p && p.catch) p.catch(() => {}); }
+  function bgmPlay(name) {
+    if (!BGM_SRC[name]) return;
+    if (bgmCur === name) { if (!muted) { const a = bgmGet(name); a.volume = BGM_MAX; tryPlay(a); } return; }
+    const prev = bgmCur ? bgmGet(bgmCur) : null;
+    const next = bgmGet(name);
+    bgmCur = name;
+    if (muted) { if (prev) prev.pause(); return; }   // ミュート中は切替だけ記録
+    next.volume = 0; tryPlay(next);
+    if (bgmFadeId) clearInterval(bgmFadeId);
+    let t = 0; const steps = 14;
+    bgmFadeId = setInterval(() => {
+      t++; const k = t / steps;
+      next.volume = Math.min(BGM_MAX, BGM_MAX * k);
+      if (prev) prev.volume = Math.max(0, BGM_MAX * (1 - k));
+      if (t >= steps) { clearInterval(bgmFadeId); bgmFadeId = null; if (prev) prev.pause(); next.volume = BGM_MAX; }
+    }, 45);
+  }
+  function bgmUnlock() { if (bgmCur && !muted) { const a = bgmGet(bgmCur); a.volume = BGM_MAX; tryPlay(a); } }
 
   // 1音（矩形波などのエンベロープ付き）
   function tone(freq, t0, dur, opt) {
@@ -48,7 +84,9 @@
       muted = !!m;
       try { localStorage.setItem(KEY, muted ? "1" : "0"); } catch (e) {}
       if (master) master.gain.value = muted ? 0 : 0.26;
+      if (bgmCur) { const a = bgmGet(bgmCur); if (muted) { a.pause(); } else { a.volume = BGM_MAX; tryPlay(a); } }
     },
+    bgm(name) { bgmPlay(name); },
     isMuted() { return muted; },
 
     fill()  { if (!ensure()) return; tone(700, ctx.currentTime, 0.045, { gain: 0.4 }); },

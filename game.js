@@ -40,6 +40,7 @@
 
   // ===== サウンド（SFX）：null安全ヘルパ＋初回操作でアンロック =====
   const sfx = (n, ...a) => { try { if (window.SFX && window.SFX[n]) window.SFX[n](...a); } catch (e) {} };
+  const playBgm = (name) => sfx("bgm", name);   // 画面ごとのBGM切替（クロスフェード）
   ["pointerdown", "keydown"].forEach(ev => window.addEventListener(ev, () => sfx("unlock"), { capture: true }));
   let lastPaintT = 0;
   function playPaintSfx(next) {
@@ -356,6 +357,7 @@
   function startPuzzle(p) {
     pickRoom();
     sfx("transition");
+    playBgm("play");
     current = p;
     rows = p.solution.length;
     cols = p.solution[0].length;
@@ -803,6 +805,7 @@
   // ===== 画面遷移 =====
   function backToSelect() {
     sfx("transition");
+    playBgm("atelier");
     stopTimer();
     paused = false;
     board.classList.remove("paused", "clearing");
@@ -840,6 +843,7 @@
   const btnGallery = document.getElementById("btn-gallery");
   function enterSelectFromTitle() {
     sfx("transition");
+    playBgm("atelier");
     if (titleScreen) titleScreen.classList.add("hidden");
     gameScreen.classList.add("hidden");
     galleryScreen.classList.add("hidden");
@@ -876,6 +880,7 @@
     });
   }
   function showGallery() {
+    playBgm("atelier");
     if (titleScreen) titleScreen.classList.add("hidden");
     gameScreen.classList.add("hidden");
     selectScreen.classList.add("hidden");
@@ -909,6 +914,7 @@
   function goToTitle() {
     closeMenu();
     sfx("transition");
+    playBgm("title");
     stopTimer();
     if (idleId) clearTimeout(idleId);
     paused = false; cleared = false;
@@ -955,6 +961,7 @@
   }
   function showTalkEvent(count, onEnd) {
     talkQueue = pickTalk(count); talkIdx = 0; talkOnEnd = onEnd || null;
+    playBgm("talk");
     if (talkEvent) talkEvent.classList.remove("hidden");
     renderKoma();
   }
@@ -1024,4 +1031,5 @@
   // ===== 起動 =====
   renderSelect();
   buildTalkDebugButtons();
+  playBgm("title");   // 初回タップでアンロックされて再生開始
 })();
