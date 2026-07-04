@@ -54,6 +54,8 @@
   --trivia-bd: #c78ba0;    /* うんちく枠（中間ピンク） */
   --em: #ff9ec2;           /* うんちく強調語 */
   --time-pill: #f0d5cd;    /* TIMEピル地 */
+  /* 会話イベント（スポットライトのピンク） */
+  --talk-hi: #ff8ec2; --talk-mid: #e85597; --talk-lo: #a83070;
   /* 盤面 */
   --grid: #d8ac9f; --done: #96684a; --highlight: #ffe8d0;
   --white: #fff4ee; --hair: #201828;
@@ -486,6 +488,34 @@ svg { display: block; }
 .clear-trivia-tag { position: absolute; top: -10px; left: 10px; z-index: 6; background: var(--crim); color: var(--cream);
   font-family: "Melonano", sans-serif; font-size: 9px; padding: 3px 9px 4px; letter-spacing: 1px; box-shadow: 0 0 0 2px var(--trivia-bd); }
 .clear-trivia .em { color: var(--em); }
+
+/* ===== 会話イベント（ファミコン風カットシーン） ===== */
+.talk-root { position: fixed; inset: 0; z-index: 1100; background: #000; display: flex; justify-content: center;
+  font-family: "Melonano", "DotGothic16", sans-serif; cursor: pointer; }
+.talk-scene { position: relative; width: 100%; max-width: 440px; height: 100%; overflow: hidden; background: #000; }
+
+/* 中央の見せ帯：派手ピンクのスポットライト（上下の黒帯にフェード） */
+.talk-stage { position: absolute; left: 0; right: 0; top: 150px; bottom: 394px; overflow: hidden;
+  background: radial-gradient(ellipse 78% 95% at 50% 52%, var(--talk-hi) 0%, var(--talk-mid) 48%, var(--talk-lo) 100%); }
+.talk-sparkle { position: absolute; color: #fff; opacity: .8; }
+.talk-sparkle.s1 { top: 26px; left: 52px; font-size: 12px; }
+.talk-sparkle.s2 { top: 56px; right: 58px; font-size: 9px; }
+.talk-sparkle.s3 { top: 120px; left: 38px; font-size: 10px; }
+.talk-sparkle.s4 { top: 150px; right: 42px; font-size: 12px; }
+
+.talk-mei { position: absolute; left: 50%; bottom: -96px; transform: translateX(-50%);
+  height: 420px; image-rendering: pixelated; filter: drop-shadow(0 6px 12px rgba(0,0,0,.4)); }
+
+/* 黒帯：上150 / 下394（下を大きく） */
+.talk-bar-top { position: absolute; top: 0; left: 0; right: 0; height: 150px; background: #000; z-index: 10; }
+.talk-bar-bottom { position: absolute; bottom: 0; left: 0; right: 0; height: 394px; background: #000; z-index: 10; padding: 34px 30px 0; }
+
+.talk-name { color: #fff; font-size: 15px; letter-spacing: 3px; margin-bottom: 22px; }
+.talk-text { color: #fff; font-size: 19px; line-height: 2.1; letter-spacing: 2px; }
+.talk-prog { position: absolute; left: 30px; bottom: 40px; color: #fff; font-size: 12px; opacity: .6; letter-spacing: 2px; }
+.talk-next { position: absolute; right: 30px; bottom: 40px; color: #fff; font-size: 18px; animation: talk-blink 1s steps(1) infinite; }
+@keyframes talk-blink { 50% { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .talk-next { animation: none; } }
 
 /* ===== デスクトップ（副・760px超）：中央寄せ ===== */
 @media (min-width: 760px) {

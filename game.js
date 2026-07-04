@@ -28,6 +28,10 @@
   const menuCloseBtn = document.getElementById("menu-close");
   const ssMenuBtn = document.getElementById("ss-menu-btn");
   const ghMenuBtn = document.getElementById("gh-menu-btn");
+  const talkEvent = document.getElementById("talk-event");
+  const talkMei = document.querySelector(".js-talk-mei");
+  const talkTextEl = document.querySelector(".js-talk-text");
+  const talkProgEl = document.querySelector(".js-talk-prog");
 
   // ===== キャラの表情・セリフ（配信リアクション） =====
   const FACE_CLASSES = ["face-neutral", "face-cry", "face-angry", "face-shock", "face-shy", "face-happy"];
@@ -67,6 +71,36 @@
     car:   'いちばん はじめの くるまは、ガソリンじゃなくて <span class="em">じょうき</span>で うごいてたんだよ◆',
     crab:  'かにが よこに あるくのは、あしの <span class="em">かんせつが よこにしか</span>まがらないからなんだよね◆',
     _default: 'こんなのも といちゃうなんて、メイさん ちょっと かんどうしちゃった◆',
+  };
+
+  // 5問節目の会話イベント。キー=到達問数の節目。値=コマ配列（2〜4コマ・表情差分つき）
+  const TALK_EVENTS = {
+    5: [
+      { expr: "surprise", text: "まさか ここまで といちゃうなんて<br>おもわなかったんだよね！" },
+      { expr: "normal",   text: "メイさんは ぜんぶ といたのかって？" },
+      { expr: "shy",      text: "…と、とうぜん なんだよね！◆" },
+    ],
+    10: [
+      { expr: "normal", text: "１０もん とうたつ かぁ…<br>やるじゃん。" },
+      { expr: "pout",   text: "まあ メイさんの ファンなら<br>これくらい できて とうぜんだけど？" },
+      { expr: "shy",    text: "う、うれしくなんて ないんだからね◆" },
+    ],
+    15: [
+      { expr: "surprise", text: "１５もん！？<br>ちょっと ペース はやくない！？" },
+      { expr: "pout",     text: "まさか メイさんの きろく<br>ぬくきじゃ ないよね…？" },
+      { expr: "normal",   text: "ま、でも メイさんの ほうが<br>うえだけどね！" },
+      { expr: "shy",      text: "わからなく なったら たよって<br>くれても いいんだよね！" },
+    ],
+    20: [
+      { expr: "normal", text: "ここまで くると…<br>もう ほんものだね。" },
+      { expr: "down",   text: "…くやしいけど、メイさんより<br>センス あるかも。" },
+      { expr: "shy",    text: "な、なんて ね！ じょうだんだよ◆" },
+    ],
+    25: [
+      { expr: "surprise", text: "え、まだ といてるの！？" },
+      { expr: "normal",   text: "メイさん、ずっと みてたんだよ。<br>きみが えを かんせいさせるとこ。" },
+      { expr: "shy",      text: "これからも… となりで みてて<br>いいかな？◆" },
+    ],
   };
   let faceResetId = null;
   function setFace(name) {
@@ -747,6 +781,78 @@
     e.preventDefault(); openMenu();
   });
 
+  // ===== 会話イベント（ファミコン風カットシーン） =====
+  const TALK_KEY = "dot-picross-talks";
+  const reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  function loadTalks() { try { return JSON.parse(localStorage.getItem(TALK_KEY)) || []; } catch (e) { return []; } }
+  function isTalkShown(n) { return loadTalks().indexOf(n) !== -1; }
+  function markTalkShown(n) { const a = loadTalks(); if (a.indexOf(n) === -1) { a.push(n); try { localStorage.setItem(TALK_KEY, JSON.stringify(a)); } catch (e) {} } }
+
+  let talkQueue = [], talkIdx = 0, talkTyping = false, talkTimer = null, talkOnEnd = null;
+
+  function pickTalk(count) {
+    if (TALK_EVENTS[count]) return TALK_EVENTS[count];
+    const keys = Object.keys(TALK_EVENTS).map(Number).sort((a, b) => a - b);
+    return TALK_EVENTS[keys[keys.length - 1]];   // 定義外の節目は最大の会話を再利用
+  }
+  function showTalkEvent(count, onEnd) {
+    talkQueue = pickTalk(count); talkIdx = 0; talkOnEnd = onEnd || null;
+    if (talkEvent) talkEvent.classList.remove("hidden");
+    renderKoma();
+  }
+  function renderKoma() {
+    const koma = talkQueue[talkIdx];
+    if (talkMei) {
+      talkMei.onerror = function () { this.onerror = null; this.src = "assets/mei/shy.png"; };  // 未配置表情はshyで代替
+      talkMei.src = "assets/mei/" + koma.expr + ".png";
+    }
+    if (talkProgEl) talkProgEl.textContent = (talkIdx + 1) + "／" + talkQueue.length;
+    typeText(koma.text);
+  }
+  function typeText(html) {
+    if (!talkTextEl) return;
+    talkTyping = true;
+    clearInterval(talkTimer);
+    if (reduceMotion) { talkTextEl.innerHTML = html; talkTyping = false; return; }
+    // <br> をトークン化して1文字ずつ（タグ途中で切れないように）
+    const tokens = html.split(/(<br>)/g).flatMap(seg => seg === "<br>" ? ["<br>"] : Array.from(seg));
+    talkTextEl.innerHTML = "";
+    let i = 0;
+    talkTimer = setInterval(() => {
+      if (i >= tokens.length) { clearInterval(talkTimer); talkTyping = false; return; }
+      talkTextEl.innerHTML += tokens[i++];
+    }, 42);
+  }
+  function onTalkTap() {
+    if (talkTyping) {   // タイプ中 → 即時全表示
+      clearInterval(talkTimer);
+      if (talkTextEl) talkTextEl.innerHTML = talkQueue[talkIdx].text;
+      talkTyping = false;
+      return;
+    }
+    talkIdx++;
+    if (talkIdx >= talkQueue.length) {
+      if (talkEvent) talkEvent.classList.add("hidden");
+      const cb = talkOnEnd; talkOnEnd = null;
+      if (cb) cb();
+    } else {
+      renderKoma();
+    }
+  }
+  if (talkEvent) talkEvent.addEventListener("click", onTalkTap);
+
+  // クリアの「つぎへ」：5問節目なら会話イベント → その後 select へ
+  function onClearNext() {
+    clearOverlay.classList.add("hidden");
+    const count = Object.keys(loadSolved()).length;   // 累計クリア数（達成パズル種類数）
+    if (count > 0 && count % 5 === 0 && !isTalkShown(count)) {
+      markTalkShown(count);
+      showTalkEvent(count, backToSelect);
+    } else {
+      backToSelect();
+    }
+  }
+
   // ===== イベント登録 =====
   backBtn.addEventListener("click", backToSelect);
   resetBtn.addEventListener("click", resetBoard);
@@ -754,7 +860,7 @@
   if (undoBtn) undoBtn.addEventListener("click", undo);
   modeFillBtn.addEventListener("click", () => setMode("fill"));
   modeMarkBtn.addEventListener("click", () => setMode("mark"));
-  clearNextBtn.addEventListener("click", backToSelect);
+  clearNextBtn.addEventListener("click", onClearNext);
 
   // ===== 起動 =====
   renderSelect();
