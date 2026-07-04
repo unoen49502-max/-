@@ -36,6 +36,20 @@
   const talkMei = document.querySelector(".js-talk-mei");
   const talkTextEl = document.querySelector(".js-talk-text");
   const talkProgEl = document.querySelector(".js-talk-prog");
+  const menuSoundBtn = document.getElementById("menu-sound");
+
+  // ===== サウンド（SFX）：null安全ヘルパ＋初回操作でアンロック =====
+  const sfx = (n, ...a) => { try { if (window.SFX && window.SFX[n]) window.SFX[n](...a); } catch (e) {} };
+  ["pointerdown", "keydown"].forEach(ev => window.addEventListener(ev, () => sfx("unlock"), { capture: true }));
+  let lastPaintT = 0;
+  function playPaintSfx(next) {
+    const now = (window.performance && performance.now) ? performance.now() : 0;
+    if (now - lastPaintT < 30) return;   // ドラッグ塗り中の鳴らしすぎを抑制
+    lastPaintT = now;
+    if (next === FILLED) sfx("fill");
+    else if (next === MARKED) sfx("mark");
+    else sfx("erase");
+  }
 
   // ===== キャラの表情・セリフ（配信リアクション） =====
   const FACE_CLASSES = ["face-neutral", "face-cry", "face-angry", "face-shock", "face-shy", "face-happy"];
@@ -341,6 +355,7 @@
   // ===== ゲーム開始 =====
   function startPuzzle(p) {
     pickRoom();
+    sfx("transition");
     current = p;
     rows = p.solution.length;
     cols = p.solution[0].length;
@@ -596,6 +611,7 @@
     }
     if (stroke) stroke.push({ r, c, prev: cur });
     state[r][c] = next;
+    playPaintSfx(next);
     renderCell(r, c, true);
     updateClueStrike();
     updateProgress();
@@ -620,7 +636,7 @@
       const el = board.querySelector(`.colhint[data-col="${c}"]`);
       if (el) el.classList.toggle("done", ok);
     }
-    if (!cleared && done > doneLines) { flashFace("shy", 700); setSpeech(SPEECH.line); }
+    if (!cleared && done > doneLines) { flashFace("shy", 700); setSpeech(SPEECH.line); sfx("line"); }
     doneLines = done;
   }
 
@@ -666,6 +682,7 @@
 
     setFace("happy");
     setSpeech(SPEECH.clear);
+    sfx("clear");
     playClearSequence();
   }
 
@@ -696,6 +713,7 @@
     if (tv) tv.innerHTML = MEI_TRIVIA[current.id] || MEI_TRIVIA._default;
     clearOverlay.classList.toggle("is-record", newRecord);
     clearOverlay.classList.remove("hidden");
+    if (newRecord) setTimeout(() => sfx("record"), 260);
     updateStarCount();
   }
 
@@ -751,6 +769,7 @@
     paused = !paused;
     board.classList.toggle("paused", paused);
     setPauseUI(paused);
+    sfx("pause");
     if (paused) {
       stopTimer();
       if (idleId) clearTimeout(idleId);
@@ -783,6 +802,7 @@
 
   // ===== 画面遷移 =====
   function backToSelect() {
+    sfx("transition");
     stopTimer();
     paused = false;
     board.classList.remove("paused", "clearing");
@@ -819,6 +839,7 @@
   const btnStart = document.getElementById("btn-start-stream");
   const btnGallery = document.getElementById("btn-gallery");
   function enterSelectFromTitle() {
+    sfx("transition");
     if (titleScreen) titleScreen.classList.add("hidden");
     gameScreen.classList.add("hidden");
     galleryScreen.classList.add("hidden");
@@ -862,7 +883,7 @@
     galleryScreen.classList.remove("hidden");
     renderGallery();
   }
-  function enterGalleryFromTitle() { showGallery(); }
+  function enterGalleryFromTitle() { sfx("transition"); showGallery(); }
 
   // デバッグ：トークイベントを最初から解放（節目に関係なく再生）
   function buildTalkDebugButtons() {
@@ -880,10 +901,14 @@
   galleryScreen.addEventListener("contextmenu", e => { e.preventDefault(); openMenu(); });
 
   // ===== メインメニュー（右クリック／☰） =====
-  function openMenu() { if (menuOverlay) menuOverlay.classList.remove("hidden"); }
+  function openMenu() { if (menuOverlay) menuOverlay.classList.remove("hidden"); updateSoundLabel(); sfx("button"); }
   function closeMenu() { if (menuOverlay) menuOverlay.classList.add("hidden"); }
+  function updateSoundLabel() {
+    if (menuSoundBtn) menuSoundBtn.textContent = "サウンド： " + (window.SFX && window.SFX.isMuted() ? "OFF" : "ON");
+  }
   function goToTitle() {
     closeMenu();
+    sfx("transition");
     stopTimer();
     if (idleId) clearTimeout(idleId);
     paused = false; cleared = false;
@@ -898,8 +923,13 @@
   }
   if (ssMenuBtn) ssMenuBtn.addEventListener("click", openMenu);
   if (ghMenuBtn) ghMenuBtn.addEventListener("click", openMenu);
-  if (menuCloseBtn) menuCloseBtn.addEventListener("click", closeMenu);
+  if (menuCloseBtn) menuCloseBtn.addEventListener("click", () => { sfx("button"); closeMenu(); });
   if (menuTitleBtn) menuTitleBtn.addEventListener("click", goToTitle);
+  if (menuSoundBtn) menuSoundBtn.addEventListener("click", () => {
+    if (window.SFX) window.SFX.setMuted(!window.SFX.isMuted());
+    updateSoundLabel();
+    sfx("button");   // ONに戻したときだけ鳴る（OFFなら無音）
+  });
   if (menuOverlay) menuOverlay.addEventListener("click", e => { if (e.target === menuOverlay) closeMenu(); });
   document.addEventListener("keydown", e => { if (e.key === "Escape") closeMenu(); });
   // 右クリック：セレクト画面はどこでも／ゲーム画面は盤面以外でメニューを開く（盤面の右クリックは✕マーク）
@@ -935,6 +965,7 @@
       talkMei.src = "assets/mei/" + koma.expr + ".png?v=18";
     }
     if (talkProgEl) talkProgEl.textContent = (talkIdx + 1) + "／" + talkQueue.length;
+    sfx("talk");
     typeText(koma.text);
   }
   function typeText(html) {
@@ -983,12 +1014,12 @@
 
   // ===== イベント登録 =====
   backBtn.addEventListener("click", backToSelect);
-  resetBtn.addEventListener("click", resetBoard);
+  resetBtn.addEventListener("click", () => { sfx("button"); resetBoard(); });
   if (pauseBtn) pauseBtn.addEventListener("click", togglePause);
-  if (undoBtn) undoBtn.addEventListener("click", undo);
-  modeFillBtn.addEventListener("click", () => setMode("fill"));
-  modeMarkBtn.addEventListener("click", () => setMode("mark"));
-  clearNextBtn.addEventListener("click", onClearNext);
+  if (undoBtn) undoBtn.addEventListener("click", () => { sfx("button"); undo(); });
+  modeFillBtn.addEventListener("click", () => { sfx("button"); setMode("fill"); });
+  modeMarkBtn.addEventListener("click", () => { sfx("button"); setMode("mark"); });
+  clearNextBtn.addEventListener("click", () => { sfx("button"); onClearNext(); });
 
   // ===== 起動 =====
   renderSelect();
