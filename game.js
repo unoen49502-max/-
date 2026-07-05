@@ -39,6 +39,12 @@
   const talkTextEl = document.querySelector(".js-talk-text");
   const talkProgEl = document.querySelector(".js-talk-prog");
   const menuSoundBtn = document.getElementById("menu-sound");
+  const hintBtn = document.getElementById("btn-hint");
+  const hintBadge = document.getElementById("hint-badge");
+  const rouletteOverlay = document.getElementById("roulette-overlay");
+  const rlReel = document.querySelector(".js-rl-reel");
+  const rlResult = document.querySelector(".js-rl-result");
+  const rlRemain = document.querySelector(".js-rl-remain");
 
   // ===== サウンド（SFX）：null安全ヘルパ＋初回操作でアンロック =====
   const sfx = (n, ...a) => { try { if (window.SFX && window.SFX[n]) window.SFX[n](...a); } catch (e) {} };
@@ -227,6 +233,11 @@
   let history = [];      // [{r,c,prev}[], ...]
   let stroke = null;     // 進行中ストロークの変更セル
 
+  // ヒントルーレット（1問につき既定3回・1ラインを公開）
+  const HINTS_PER_PUZZLE = 3;
+  let hintsLeft = HINTS_PER_PUZZLE;
+  let rouletteSpinning = false;
+
   // ピンチズーム／パン
   let boardEventsAttached = false;
   const pts = new Map();
@@ -368,10 +379,12 @@
     state = Array.from({ length: rows }, () => new Array(cols).fill(EMPTY));
     cleared = false; paused = false; seconds = 0; mode = "fill"; doneLines = 0; milestones = {};
     history = []; stroke = null;
+    hintsLeft = HINTS_PER_PUZZLE;
     board.classList.remove("paused", "clearing");
     setPauseUI(false);
     updateModeButtons();
     updateUndoButton();
+    updateHintUI();
 
     puzzleNameEl.textContent = p.name;
     selectScreen.classList.add("hidden");
@@ -831,9 +844,11 @@
     state = Array.from({ length: rows }, () => new Array(cols).fill(EMPTY));
     cleared = false; paused = false; doneLines = 0; milestones = {};
     history = []; stroke = null;
+    hintsLeft = HINTS_PER_PUZZLE;
     board.classList.remove("clearing", "paused");
     setPauseUI(false);
     updateUndoButton();
+    updateHintUI();
     renderCells();
     updateClueStrike();
     updateProgress();
@@ -841,6 +856,108 @@
     flashFace("angry", 800);
     setSpeech(SPEECH.reset);
     resetIdle();
+  }
+
+  // ===== ヒントルーレット：スピン → ランダムな1ラインを公開（1問3回まで） =====
+  function updateHintUI() {
+    if (hintBadge) hintBadge.textContent = String(hintsLeft);
+    if (hintBtn) hintBtn.disabled = (hintsLeft <= 0);
+  }
+  // まだ正解と一致していない行／列を1つランダムに選ぶ
+  function pickIncompleteLine() {
+    const cand = [];
+    for (let r = 0; r < rows; r++) {
+      const pl = state[r].map(v => (v === FILLED ? 1 : 0));
+      if (!arraysEqual(pl, current.solution[r])) cand.push({ type: "row", index: r, label: "よこ" + (r + 1) });
+    }
+    for (let c = 0; c < cols; c++) {
+      const pl = state.map(row => (row[c] === FILLED ? 1 : 0));
+      const sol = current.solution.map(row => row[c]);
+      if (!arraysEqual(pl, sol)) cand.push({ type: "col", index: c, label: "たて" + (c + 1) });
+    }
+    if (!cand.length) return null;
+    return cand[Math.floor(Math.random() * cand.length)];
+  }
+  function buildReelLabels(finalLabel) {
+    const arr = [];
+    for (let k = 0; k < 20; k++) {
+      const isRow = Math.random() < 0.5;
+      const n = 1 + Math.floor(Math.random() * (isRow ? rows : cols));
+      arr.push((isRow ? "よこ" : "たて") + n);
+    }
+    arr.push(finalLabel);   // 最後に必ず当たりのラベルで止まる
+    return arr;
+  }
+  function openRoulette() {
+    if (cleared || paused || rouletteSpinning) return;
+    if (hintsLeft <= 0) {
+      if (hintBtn) { hintBtn.classList.remove("nudge"); void hintBtn.offsetWidth; hintBtn.classList.add("nudge"); }
+      sfx("erase");
+      return;
+    }
+    const target = pickIncompleteLine();
+    if (!target) {   // 公開できるラインが無い（ほぼ完成）→ 回数は消費しない
+      flashFace("happy", 900);
+      setSpeech("もう ほとんど かんせいだよ◆");
+      sfx("button");
+      return;
+    }
+    rouletteSpinning = true;
+    if (rlResult) rlResult.textContent = "スピン ちゅう…";
+    if (rlRemain) rlRemain.textContent = String(hintsLeft);
+    if (rlReel) rlReel.classList.remove("win");
+    if (rouletteOverlay) rouletteOverlay.classList.remove("hidden");
+    sfx("button");
+    spinReel(target, () => {
+      if (rlReel) rlReel.classList.add("win");
+      if (rlResult) rlResult.innerHTML = 'あたり！ <b>' + target.label + '</b> を こうかい！';
+      sfx("record");
+      setTimeout(() => {
+        if (rouletteOverlay) rouletteOverlay.classList.add("hidden");
+        rouletteSpinning = false;
+        hintsLeft = Math.max(0, hintsLeft - 1);
+        updateHintUI();
+        revealLine(target);
+      }, 950);
+    });
+  }
+  function spinReel(target, onDone) {
+    const labels = buildReelLabels(target.label);
+    let i = 0;
+    (function step() {
+      if (rlReel) rlReel.textContent = labels[i];
+      if (i > 0) sfx("tick");
+      i++;
+      if (i < labels.length) setTimeout(step, Math.min(40 + i * i * 1.1, 285));
+      else if (onDone) onDone();
+    })();
+  }
+  function revealLine(t) {
+    if (cleared) return;
+    const cells = [];
+    if (t.type === "row") { for (let c = 0; c < cols; c++) cells.push([t.index, c]); }
+    else { for (let r = 0; r < rows; r++) cells.push([r, t.index]); }
+
+    const changed = [];
+    cells.forEach(([r, c]) => {
+      const want = current.solution[r][c] === 1 ? FILLED : MARKED;
+      if (state[r][c] !== want) { changed.push({ r: r, c: c, prev: state[r][c] }); state[r][c] = want; }
+    });
+    if (changed.length) { history.push(changed); updateUndoButton(); }
+
+    cells.forEach(([r, c], i) => {
+      setTimeout(() => {
+        renderCell(r, c, true);
+        const el = cellEl(r, c);
+        if (el) { el.classList.remove("hint-flash"); void el.offsetWidth; el.classList.add("hint-flash"); }
+      }, i * 45);
+    });
+    sfx("line");
+    flashFace("happy", 900);
+    setSpeech(t.label + " こうかい！ サービスだよ◆");
+    updateClueStrike();
+    updateProgress();
+    setTimeout(() => checkClear(), cells.length * 45 + 120);
   }
 
   // ===== 起動画面（画面0）→ 各画面へ =====
@@ -899,8 +1016,8 @@
       if (unlocked) {
         const expr = (TALK_EVENTS[n][0] && TALK_EVENTS[n][0].expr) || "normal";
         const img = document.createElement("img");
-        img.alt = ""; img.onerror = function () { this.onerror = null; this.src = "assets/mei/normal.png?v=33"; };
-        img.src = "assets/mei/" + expr + ".png?v=33";
+        img.alt = ""; img.onerror = function () { this.onerror = null; this.src = "assets/mei/normal.png?v=34"; };
+        img.src = "assets/mei/" + expr + ".png?v=34";
         face.appendChild(img);
       } else {
         face.textContent = "🔒";
@@ -1127,6 +1244,7 @@
   backBtn.addEventListener("click", backToSelect);
   resetBtn.addEventListener("click", () => { sfx("button"); resetBoard(); });
   if (pauseBtn) pauseBtn.addEventListener("click", togglePause);
+  if (hintBtn) hintBtn.addEventListener("click", openRoulette);
   if (undoBtn) undoBtn.addEventListener("click", () => { sfx("button"); undo(); });
   modeFillBtn.addEventListener("click", () => { sfx("button"); setMode("fill"); });
   modeMarkBtn.addEventListener("click", () => { sfx("button"); setMode("mark"); });

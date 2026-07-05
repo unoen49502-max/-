@@ -1,5 +1,5 @@
 /* ===== メイのドット工房 — Service Worker（オフライン対応・PWA） ===== */
-const VERSION = "v33";
+const VERSION = "v34";
 const APP_CACHE = "dot-atelier-app-" + VERSION;   // アプリ本体（バージョンで入替）
 const FONT_CACHE = "dot-atelier-fonts";           // Google Fonts（横断キャッシュ・保持）
 
@@ -7,10 +7,10 @@ const FONT_CACHE = "dot-atelier-fonts";           // Google Fonts（横断キャ
 const APP_SHELL = [
   "./",
   "./index.html",
-  "./style.css?v=33",
-  "./sfx.js?v=33",
-  "./puzzles.js?v=33",
-  "./game.js?v=33",
+  "./style.css?v=34",
+  "./sfx.js?v=34",
+  "./puzzles.js?v=34",
+  "./game.js?v=34",
   "./manifest.webmanifest",
   "./assets/fonts/Melonano.ttf",
   "./assets/fonts/MPLUSRounded1c-Bold.ttf",

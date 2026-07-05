@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- build: v33 -->
+<!-- build: v34 -->
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
@@ -20,7 +20,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=33">
+  <link rel="stylesheet" href="style.css?v=34">
 </head>
 <body>
   <main class="app">
@@ -180,6 +180,10 @@
           </button>
         </div>
         <div class="tb-round-row">
+          <button id="btn-hint" class="round-btn hint-btn" aria-label="ヒントルーレット">
+            <span class="ri"><span class="ico">🎯</span></span>
+            <span class="hint-badge" id="hint-badge">3</span>
+          </button>
           <button id="btn-pause" class="round-btn" aria-label="きゅうけい"><span class="ri"><span class="ico">⏸</span></span></button>
           <button id="btn-reset" class="round-btn" aria-label="やりなおし"><span class="ri"><span class="ico">↻</span></span></button>
           <button id="btn-undo" class="round-btn" aria-label="もどす"><span class="ri"><span class="ico">↶</span></span></button>
@@ -197,7 +201,7 @@
         <div class="clear-halo"></div>
         <div class="clear-halo2"></div>
 
-        <img class="clear-mei" src="assets/mei/shy.png?v=33" alt="はぐれメイ">
+        <img class="clear-mei" src="assets/mei/shy.png?v=34" alt="はぐれメイ">
 
         <div class="clear-newrec">NEW RECORD!</div>
 
@@ -232,7 +236,7 @@
         <div class="talk-stage">
           <span class="talk-sparkle s1">✦</span><span class="talk-sparkle s2">✦</span>
           <span class="talk-sparkle s3">✦</span><span class="talk-sparkle s4">✦</span>
-          <img class="talk-mei js-talk-mei" src="assets/mei/shy.png?v=33" alt="はぐれメイ">
+          <img class="talk-mei js-talk-mei" src="assets/mei/shy.png?v=34" alt="はぐれメイ">
         </div>
         <div class="talk-bar-top"></div>
         <div class="talk-bar-bottom">
@@ -241,6 +245,20 @@
           <span class="talk-prog js-talk-prog">1／3</span>
           <span class="talk-next">▼</span>
         </div>
+      </div>
+    </div>
+
+    <!-- ===== ヒントルーレット（1ラインを こうかい・1問3回） ===== -->
+    <div id="roulette-overlay" class="overlay hidden">
+      <div class="menu-box roulette-box">
+        <div class="menu-title">ヒント<br>ルーレット</div>
+        <div class="rl-window">
+          <span class="rl-arrow rl-arrow-l">▶</span>
+          <div class="rl-reel js-rl-reel">よこ１</div>
+          <span class="rl-arrow rl-arrow-r">◀</span>
+        </div>
+        <div class="rl-result js-rl-result">スピン ちゅう…</div>
+        <div class="rl-remain">のこり <span class="js-rl-remain">3</span> かい</div>
       </div>
     </div>
 
@@ -272,9 +290,9 @@
     </div>
   </main>
 
-  <script src="sfx.js?v=33"></script>
-  <script src="puzzles.js?v=33"></script>
-  <script src="game.js?v=33"></script>
+  <script src="sfx.js?v=34"></script>
+  <script src="puzzles.js?v=34"></script>
+  <script src="game.js?v=34"></script>
   <script>
     // ===== PWA: Service Worker 登録（オフライン＆ホーム画面インストール） =====
     if ("serviceWorker" in navigator) {

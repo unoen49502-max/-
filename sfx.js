@@ -142,6 +142,7 @@
     pause() { seq([460, 330], { type: "triangle", gain: 0.4, step: 0.09 }); },
     line()  { seq([N.E5, N.G5, N.C6], { type: "square", gain: 0.32, step: 0.06 }); },
     talk()  { if (!ensure()) return; tone(900, ctx.currentTime, 0.02, { gain: 0.16 }); },
+    tick()  { if (!ensure()) return; tone(1200, ctx.currentTime, 0.02, { type: "square", gain: 0.2 }); },
     transition() { if (!ensure()) return; tone(300, ctx.currentTime, 0.16, { type: "triangle", gain: 0.28, slideTo: 720 }); },
     record(){ seq([N.C6, N.E6, N.G6, N.C7], { type: "square", gain: 0.3, step: 0.05 }); },
     clear() { seq([N.C5, N.E5, N.G5, N.C6, N.E6, N.G6], { type: "square", gain: 0.4, step: 0.1 }); },
