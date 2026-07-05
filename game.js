@@ -4,6 +4,7 @@
 
   const PUZZLES = window.PUZZLES || [];
   const STORAGE_KEY = "dot-picross-solved";
+  const DIFF_LABEL = { 1: "やさしい", 2: "ふつう", 3: "むずかしい", 4: "げきむず" };
 
   // --- DOM ---
   const selectScreen = document.getElementById("select-screen");
@@ -322,18 +323,20 @@
       const title = document.createElement("span");
       title.className = "ss-card-title"; title.textContent = p.name;
 
-      const info = document.createElement("span");
-      info.className = "ss-info-row";
-      const pencilSlots = Math.max(3, p.difficulty);
-      const pencils = Array.from({ length: pencilSlots }, (_, i) => `<i class="${i < p.difficulty ? "on" : ""}">✎</i>`).join("");
-      info.innerHTML =
-        `<span class="ss-size-pill">${cols}×${rows}</span>` +
-        `<span class="ss-diff">${pencils}</span>` +
+      const diff = document.createElement("span");
+      diff.className = "ss-diff-badge d" + p.difficulty;
+      diff.textContent = DIFF_LABEL[p.difficulty] || ("Lv" + p.difficulty);
+
+      const meta = document.createElement("span");
+      meta.className = "ss-meta";
+      meta.innerHTML =
+        `<span class="ss-size">${cols}×${rows}</span>` +
+        `<span class="ss-meta-sep">・</span>` +
         (cleared
           ? `<span class="ss-time"><i class="star">✦</i>${formatTime(rec.time)}</span>`
           : `<span class="ss-locked-note">みかいほう</span>`);
 
-      inner.append(frame, title, info);
+      inner.append(frame, title, diff, meta);
       card.appendChild(inner);
       card.addEventListener("click", () => startPuzzle(p));
       puzzleList.appendChild(card);

@@ -239,8 +239,8 @@ body {
 
 .ss-grid {
   flex: 1 1 auto; overflow-y: auto;
-  display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
-  padding: 0 14px calc(16px + env(safe-area-inset-bottom));
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;
+  padding: 0 12px calc(16px + env(safe-area-inset-bottom));
 }
 .ss-grid::-webkit-scrollbar { width: 0; }
 
@@ -250,10 +250,10 @@ body {
 .ss-n7  { clip-path: polygon(7px 0,calc(100% - 7px) 0,100% 7px,100% calc(100% - 7px),calc(100% - 7px) 100%,7px 100%,0 calc(100% - 7px),0 7px); }
 .ss-n5  { clip-path: polygon(5px 0,calc(100% - 5px) 0,100% 5px,100% calc(100% - 5px),calc(100% - 5px) 100%,5px 100%,0 calc(100% - 5px),0 5px); }
 
-.ss-card { padding: 3px; border: none; cursor: pointer; font-family: inherit; text-align: center; }
+.ss-card { padding: 2px; border: none; cursor: pointer; font-family: inherit; text-align: center; }
 .ss-card-cleared { background: var(--gold2); }
 .ss-card-locked { background: var(--crim_dark); }
-.ss-card-inner { display: flex; flex-direction: column; align-items: center; gap: 7px; background: var(--card); padding: 10px 10px 8px; }
+.ss-card-inner { display: flex; flex-direction: column; align-items: center; gap: 4px; background: var(--card); padding: 6px 4px 7px; }
 .ss-card:active { transform: translateY(2px); }
 
 .ss-thumb-frame { width: 100%; aspect-ratio: 1 / 1; background: var(--crim_dark); padding: 3px; }
@@ -264,17 +264,29 @@ body {
 }
 .thumb-grid > span { background: transparent; }
 .thumb-grid > span.on { background: var(--thumb-ink); }
-.ss-thumb-q { font-family: "Melonano", sans-serif; font-size: 44px; color: var(--q); line-height: 1; }
+.ss-thumb-q { font-family: "Melonano", sans-serif; font-size: 30px; color: var(--q); line-height: 1; }
 
-.ss-card-title { font-size: 15px; font-weight: 700; color: var(--crim_d); letter-spacing: .5px; }
-.ss-info-row { width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 11px; font-weight: 700; }
-.ss-size-pill { background: var(--pill); color: var(--pill-txt); padding: 2px 8px 3px; font-size: 11px; letter-spacing: .5px; }
-.ss-diff { display: flex; gap: 1px; }
-.ss-diff i { font-style: normal; color: var(--pencil-off); font-size: 11px; }
-.ss-diff i.on { color: var(--crim); }
-.ss-time { color: var(--time); display: flex; align-items: center; gap: 3px; white-space: nowrap; }
+.ss-card-title { font-size: 11px; font-weight: 700; color: var(--crim_d); letter-spacing: 0; line-height: 1.15;
+  max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* 難易度バッジ（色＋ことばで ひと目でわかる） */
+.ss-diff-badge {
+  font-size: 10px; font-weight: 700; color: #fff; letter-spacing: .5px; line-height: 1;
+  padding: 3px 7px 4px; white-space: nowrap;
+  clip-path: polygon(4px 0,calc(100% - 4px) 0,100% 4px,100% calc(100% - 4px),calc(100% - 4px) 100%,4px 100%,0 calc(100% - 4px),0 4px);
+}
+.ss-diff-badge.d1 { background: #479a58; }   /* やさしい */
+.ss-diff-badge.d2 { background: #4f79b0; }   /* ふつう */
+.ss-diff-badge.d3 { background: #dd8236; }   /* むずかしい */
+.ss-diff-badge.d4 { background: #c8324f; }   /* げきむず */
+
+/* サイズ＋クリア状況（小さめ・補助情報） */
+.ss-meta { display: flex; align-items: center; justify-content: center; gap: 4px; font-size: 9px; font-weight: 700; }
+.ss-size { color: var(--pill); }
+.ss-meta-sep { color: var(--pencil-off); }
+.ss-time { color: var(--time); display: flex; align-items: center; gap: 2px; white-space: nowrap; }
 .ss-time i.star { font-style: normal; color: var(--gold2); }
-.ss-locked-note { color: var(--locked-note); font-weight: 700; font-size: 11px; }
+.ss-locked-note { color: var(--locked-note); font-weight: 700; }
 
 /* ===== ギャラリー画面（こうぼうの かべ） ===== */
 #gallery-screen {
