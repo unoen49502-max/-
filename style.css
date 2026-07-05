@@ -295,12 +295,39 @@ body {
   background: url("assets/bg_rotated.png") center center / auto 100% no-repeat var(--pink_d);
   display: flex; flex-direction: column; overflow: hidden;
 }
+.gl-scroll { flex: 1 1 auto; overflow-y: auto; }
+.gl-scroll::-webkit-scrollbar { width: 0; }
 .gl-grid {
-  flex: 1 1 auto; overflow-y: auto;
   display: grid; grid-template-columns: 1fr 1fr; gap: 14px;
   padding: 2px 14px 12px;
 }
-.gl-grid::-webkit-scrollbar { width: 0; }
+
+/* トーク見直し（かいほう済みの かいわを なんども再生） */
+.gl-talk-head {
+  font-family: "Melonano", sans-serif; font-size: 18px; color: var(--white); letter-spacing: 1.5px;
+  text-align: center; margin: 2px 0 3px;
+  text-shadow: -2px -2px 0 var(--crim_d),2px -2px 0 var(--crim_d),-2px 2px 0 var(--crim_d),2px 2px 0 var(--crim_d),0 4px 0 var(--crim);
+}
+.gl-talk-sub { text-align: center; color: var(--cream); font-size: 10px; font-weight: 700; margin-bottom: 9px;
+  text-shadow: -1px -1px 0 var(--crim_d),1px -1px 0 var(--crim_d),-1px 1px 0 var(--crim_d),1px 1px 0 var(--crim_d); }
+.gl-talk-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 0 14px calc(14px + env(safe-area-inset-bottom)); }
+.gl-talk-card {
+  display: flex; align-items: center; gap: 8px; padding: 5px 8px 5px 5px; border: none; font-family: inherit;
+  background: var(--card); box-shadow: 0 0 0 2px var(--crim), 0 3px 0 var(--crim_dark); cursor: pointer; text-align: left;
+}
+.gl-talk-card:active { transform: translateY(2px); box-shadow: 0 0 0 2px var(--crim); }
+.gl-talk-card.locked { background: rgba(58,20,36,.5); box-shadow: 0 0 0 2px var(--crim_d); cursor: default; }
+.gl-talk-face {
+  width: 38px; height: 38px; flex: 0 0 auto; background: var(--thumb-bg); border-radius: 50%; overflow: hidden;
+  display: flex; align-items: center; justify-content: center; box-shadow: 0 0 0 2px var(--crim);
+}
+.gl-talk-face img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 8%; image-rendering: pixelated; }
+.gl-talk-face.locked { background: var(--crim_dark); box-shadow: 0 0 0 2px var(--crim_d); font-size: 17px; }
+.gl-talk-lbl { display: flex; flex-direction: column; line-height: 1.2; min-width: 0; }
+.gl-talk-lbl b { font-size: 13px; font-weight: 700; color: var(--crim_d); letter-spacing: .5px; }
+.gl-talk-lbl span { font-size: 10px; font-weight: 700; color: var(--time); }
+.gl-talk-card.locked .gl-talk-lbl b { color: var(--cream); }
+.gl-talk-card.locked .gl-talk-lbl span { color: var(--locked-note); }
 .gl-card { text-align: center; }
 .gl-frame { background: var(--frame); padding: 5px;
   box-shadow: 0 0 0 3px var(--crim_dark), inset 0 0 0 2px var(--frame-hi), 0 4px 0 rgba(58,20,36,.4); }

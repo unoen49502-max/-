@@ -12,6 +12,7 @@
   const galleryScreen = document.getElementById("gallery-screen");
   const galleryList = document.getElementById("gallery-list");
   const galleryTalkBtns = document.getElementById("gallery-talk-btns");
+  const galleryTalkList = document.getElementById("gallery-talk-list");
   const glMenuBtn = document.getElementById("gl-menu-btn");
   const puzzleList = document.getElementById("puzzle-list");
   const board = document.getElementById("board");
@@ -884,6 +885,36 @@
       galleryList.appendChild(card);
     });
   }
+  // かいほう済みトークの見直しリスト（節目ごと・タップで再生）
+  function renderTalkList() {
+    if (!galleryTalkList) return;
+    galleryTalkList.innerHTML = "";
+    Object.keys(TALK_EVENTS).map(Number).sort((a, b) => a - b).forEach(n => {
+      const unlocked = isTalkShown(n);
+      const card = document.createElement(unlocked ? "button" : "div");
+      card.className = "gl-talk-card" + (unlocked ? "" : " locked");
+
+      const face = document.createElement("span");
+      face.className = "gl-talk-face" + (unlocked ? "" : " locked");
+      if (unlocked) {
+        const expr = (TALK_EVENTS[n][0] && TALK_EVENTS[n][0].expr) || "normal";
+        const img = document.createElement("img");
+        img.alt = ""; img.onerror = function () { this.onerror = null; this.src = "assets/mei/normal.png?v=33"; };
+        img.src = "assets/mei/" + expr + ".png?v=33";
+        face.appendChild(img);
+      } else {
+        face.textContent = "🔒";
+      }
+
+      const lbl = document.createElement("span");
+      lbl.className = "gl-talk-lbl";
+      lbl.innerHTML = `<b>${n}もん たっせい</b><span>${unlocked ? "▶ みなおす" : "みかいほう"}</span>`;
+
+      card.append(face, lbl);
+      if (unlocked) card.addEventListener("click", () => { sfx("button"); showTalkEvent(n, showGallery); });
+      galleryTalkList.appendChild(card);
+    });
+  }
   function showGallery() {
     playBgm("atelier");
     if (titleScreen) titleScreen.classList.add("hidden");
@@ -892,6 +923,7 @@
     clearOverlay.classList.add("hidden");
     galleryScreen.classList.remove("hidden");
     renderGallery();
+    renderTalkList();
   }
   function enterGalleryFromTitle() { sfx("transition"); showGallery(); }
 

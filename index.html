@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- build: v32 -->
+<!-- build: v33 -->
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
@@ -20,7 +20,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=32">
+  <link rel="stylesheet" href="style.css?v=33">
 </head>
 <body>
   <main class="app">
@@ -116,7 +116,13 @@
 
       <div class="ss-heading">こうぼうの かべ</div>
 
-      <div class="gl-grid" id="gallery-list"></div>
+      <div class="gl-scroll">
+        <div class="gl-grid" id="gallery-list"></div>
+
+        <div class="gl-talk-head">メイとの トーク</div>
+        <div class="gl-talk-sub">５もんごとに かいほう・なんどでも みなおせるよ◆</div>
+        <div class="gl-talk-grid" id="gallery-talk-list"></div>
+      </div>
 
       <div class="gl-debug">
         <span class="gl-debug-label">🔧 トーク（デバッグ・最初から解放）</span>
@@ -191,7 +197,7 @@
         <div class="clear-halo"></div>
         <div class="clear-halo2"></div>
 
-        <img class="clear-mei" src="assets/mei/shy.png?v=32" alt="はぐれメイ">
+        <img class="clear-mei" src="assets/mei/shy.png?v=33" alt="はぐれメイ">
 
         <div class="clear-newrec">NEW RECORD!</div>
 
@@ -226,7 +232,7 @@
         <div class="talk-stage">
           <span class="talk-sparkle s1">✦</span><span class="talk-sparkle s2">✦</span>
           <span class="talk-sparkle s3">✦</span><span class="talk-sparkle s4">✦</span>
-          <img class="talk-mei js-talk-mei" src="assets/mei/shy.png?v=32" alt="はぐれメイ">
+          <img class="talk-mei js-talk-mei" src="assets/mei/shy.png?v=33" alt="はぐれメイ">
         </div>
         <div class="talk-bar-top"></div>
         <div class="talk-bar-bottom">
@@ -266,9 +272,9 @@
     </div>
   </main>
 
-  <script src="sfx.js?v=32"></script>
-  <script src="puzzles.js?v=32"></script>
-  <script src="game.js?v=32"></script>
+  <script src="sfx.js?v=33"></script>
+  <script src="puzzles.js?v=33"></script>
+  <script src="game.js?v=33"></script>
   <script>
     // ===== PWA: Service Worker 登録（オフライン＆ホーム画面インストール） =====
     if ("serviceWorker" in navigator) {
