@@ -160,7 +160,7 @@
     ],
     30: [
       { expr: "surprise", text: "３０もんめ！？<br>メイさんの コレクション、<br>ぜんぶ ぬられちゃうよ…" },
-      { expr: "pout",     text: "ちょっとは てかげん しなさいよね！<br>…なんて、うそ うそ◆" },
+      { expr: "pout",     text: "ちょっとは てかげん するべきなんだよね！<br>…なんて、うそ うそ◆" },
       { expr: "shy",      text: "きみと かいてる じかん、<br>けっこう すきなんだよね◆" },
     ],
     35: [
@@ -1016,8 +1016,8 @@
       if (unlocked) {
         const expr = (TALK_EVENTS[n][0] && TALK_EVENTS[n][0].expr) || "normal";
         const img = document.createElement("img");
-        img.alt = ""; img.onerror = function () { this.onerror = null; this.src = "assets/mei/normal.png?v=35"; };
-        img.src = "assets/mei/" + expr + ".png?v=35";
+        img.alt = ""; img.onerror = function () { this.onerror = null; this.src = "assets/mei/normal.png?v=36"; };
+        img.src = "assets/mei/" + expr + ".png?v=36";
         face.appendChild(img);
       } else {
         face.textContent = "🔒";
