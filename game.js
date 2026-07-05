@@ -1007,7 +1007,7 @@
     if (!galleryTalkList) return;
     galleryTalkList.innerHTML = "";
     Object.keys(TALK_EVENTS).map(Number).sort((a, b) => a - b).forEach(n => {
-      const unlocked = isTalkShown(n);
+      const unlocked = DEBUG || isTalkShown(n);   // デバッグ版は全解放
       const card = document.createElement(unlocked ? "button" : "div");
       card.className = "gl-talk-card" + (unlocked ? "" : " locked");
 
@@ -1016,8 +1016,8 @@
       if (unlocked) {
         const expr = (TALK_EVENTS[n][0] && TALK_EVENTS[n][0].expr) || "normal";
         const img = document.createElement("img");
-        img.alt = ""; img.onerror = function () { this.onerror = null; this.src = "assets/mei/normal.png?v=34"; };
-        img.src = "assets/mei/" + expr + ".png?v=34";
+        img.alt = ""; img.onerror = function () { this.onerror = null; this.src = "assets/mei/normal.png?v=35"; };
+        img.src = "assets/mei/" + expr + ".png?v=35";
         face.appendChild(img);
       } else {
         face.textContent = "🔒";
@@ -1254,7 +1254,8 @@
   let DEBUG = false;
   try {
     const q = new URLSearchParams(location.search);
-    if (q.has("debug")) { DEBUG = q.get("debug") !== "0"; localStorage.setItem("dot-picross-debug", DEBUG ? "1" : "0"); }
+    if (window.DOT_DEBUG === true) DEBUG = true;            // ビルド埋め込みフラグ（デバッグ配布版）
+    else if (q.has("debug")) { DEBUG = q.get("debug") !== "0"; localStorage.setItem("dot-picross-debug", DEBUG ? "1" : "0"); }
     else DEBUG = localStorage.getItem("dot-picross-debug") === "1";
   } catch (e) {}
   const glDebugEl = document.querySelector(".gl-debug");
