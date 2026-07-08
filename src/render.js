@@ -34,16 +34,17 @@ function drawBorder(png, ox, oy, w, h, col) {
 }
 
 // Encode dark-bg frames to a looping GIF (gifenc, global palette).
-function writeGif(darkFrames, file, fps) {
+// `delays` is an optional per-frame delay array (ms) — lets an effect hold the
+// impact frame and rush the smear, the way hand-timed game VFX play "on ones".
+function writeGif(darkFrames, file, fps, delays) {
   const enc = GIFEncoder();
-  const delay = Math.round(1000 / fps);
-  // one shared palette from the first busy frame for stable colours
+  const base = Math.round(1000 / fps);
   const ref = darkFrames[Math.floor(darkFrames.length / 2)];
   const palette = quantize(ref.data, 64);
-  for (const fr of darkFrames) {
+  darkFrames.forEach((fr, i) => {
     const index = applyPalette(fr.data, palette);
-    enc.writeFrame(index, fr.width, fr.height, { palette, delay });
-  }
+    enc.writeFrame(index, fr.width, fr.height, { palette, delay: delays ? delays[i] : base });
+  });
   enc.finish();
   fs.writeFileSync(file, Buffer.from(enc.bytes()));
 }
@@ -94,9 +95,12 @@ function renderEffect(effect, outDir) {
   alphaPngs.forEach((p, i) => blit(strip, p, i * sw, 0));
   writePNG(strip, path.join(outDir, name, `${name}_spritesheet.png`));
 
-  // animated GIF
+  // animated GIF (optional per-frame timing via effect.frameDelay)
   const gifFile = path.join(outDir, name, `${name}.gif`);
-  try { writeGif(darkPngs, gifFile, fps); }
+  const delays = effect.frameDelay
+    ? Array.from({ length: frames }, (_, f) => Math.round(effect.frameDelay(f, frames, fps)))
+    : null;
+  try { writeGif(darkPngs, gifFile, fps, delays); }
   catch (e) { console.warn(`  [warn] gif failed for ${name}: ${e.message}`); }
 
   return { name, contact: sheetFile, gif: gifFile, frames };
