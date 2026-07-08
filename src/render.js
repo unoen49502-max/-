@@ -51,8 +51,9 @@ function writeGif(darkFrames, file, fps) {
 // effect: { name, size, frames, fps, bg, ramp|paletteName, scale, contactScale, render() }
 function renderEffect(effect, outDir) {
   const { name, size, frames, fps = 18, bg = [12, 12, 18] } = effect;
-  const scale = effect.scale || 5;
-  const contactScale = effect.contactScale || 2;
+  // target ~440px previews regardless of the (small) native grid
+  const scale = effect.scale || Math.max(4, Math.round(440 / size));
+  const contactScale = effect.contactScale || Math.max(2, Math.round(180 / size));
   const ramp = effect.ramp || namedRamp(effect.paletteName || 'cyan');
   const framesDir = path.join(outDir, name, 'frames');
   fs.mkdirSync(framesDir, { recursive: true });

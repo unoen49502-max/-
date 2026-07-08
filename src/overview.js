@@ -15,8 +15,9 @@ function main() {
   const effects = files.map((f) => require(path.join(EFFECTS_DIR, f)));
 
   const SAMPLES = 8;
-  const cellScale = 2;
-  const cell = 128 * cellScale; // 256
+  const nativeSize = effects[0].size;
+  const cellScale = Math.max(3, Math.round(220 / nativeSize));
+  const cell = nativeSize * cellScale;
   const pad = 5;
   const bar = 10;
   const rowH = cell + pad;

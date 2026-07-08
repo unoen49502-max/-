@@ -10,13 +10,14 @@ function slashRamp(edge, core = [1, 1, 1], opts = {}) {
     glowT = 0.035,
     glowA = 0.5,
   } = opts;
+  // Few, chunky bands so the blade reads as retro dot-art (dark outline ->
+  // colour -> bright -> white-hot core), not a smooth gradient.
   const ramp = [];
   if (glow) ramp.push({ t: glowT, color: glow, a: glowA });
-  ramp.push({ t: 0.075, color: mix(edge, [0, 0, 0], 0.45), a: 1 });
-  ramp.push({ t: 0.17, color: edge, a: 1 });
-  ramp.push({ t: 0.33, color: mix(edge, core, 0.45), a: 1 });
-  ramp.push({ t: 0.54, color: mix(edge, core, 0.78), a: 1 });
-  ramp.push({ t: 0.78, color: core, a: 1 });
+  ramp.push({ t: 0.10, color: mix(edge, [0, 0, 0], 0.5), a: 1 }); // outline
+  ramp.push({ t: 0.30, color: edge, a: 1 });                      // body
+  ramp.push({ t: 0.56, color: mix(edge, core, 0.7), a: 1 });      // bright
+  ramp.push({ t: 0.80, color: core, a: 1 });                      // white core
   return ramp;
 }
 
@@ -31,7 +32,9 @@ const P = {
 
 function ramp(name) {
   const p = P[name];
-  return slashRamp(p.edge, p.core, { glow: p.glow });
+  // no soft glow band: at chibi-scale a partial-alpha halo just scatters noisy
+  // edge pixels. Crisp, deliberate bands read as real dot-art.
+  return slashRamp(p.edge, p.core);
 }
 
 module.exports = { slashRamp, ramp, P };

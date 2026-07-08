@@ -29,33 +29,36 @@ function arcFromChord(p1, p2, bow) {
 function paintBlade(canvas, g) {
   const {
     cx, cy, radius, tail, head, thk, fade = 1, pal = P.cyan,
-    radialBow = 5, tip = true, intensity = 1,
+    radialBow = 5, tip = true, intensity = 1, unit = 1,
   } = g;
   const core = pal.core, edge = pal.edge;
   if (Math.abs(head - tail) < 1.5 * D || fade <= 0.01) return;
+  // tighter outer body (was a wide soft bloom) — keeps a defined coloured edge
+  // without scattering faint pixels at low res
   slashBand(canvas, {
-    cx, cy, radius, a0: tail, a1: head, maxThick: thk * 1.9,
-    coreColor: edge, edgeColor: [edge[0] * 0.3, edge[1] * 0.35, edge[2] * 0.5],
-    intensity: 0.5 * fade * intensity, crossPow: 2.4, coreBias: 0.1,
-    brightProfile: (u) => Math.pow(u, 1.5) * (0.3 + 0.7 * u), radialBow,
+    cx, cy, radius, a0: tail, a1: head, maxThick: thk * 1.35,
+    coreColor: edge, edgeColor: [edge[0] * 0.35, edge[1] * 0.4, edge[2] * 0.55],
+    intensity: 0.55 * fade * intensity, crossPow: 2.0, coreBias: 0.1,
+    brightProfile: (u) => 0.25 + 0.75 * u, radialBow,
   });
+  // main blade — brighter floor so the whole length stays bold, not a thin comet
   slashBand(canvas, {
     cx, cy, radius, a0: tail, a1: head, maxThick: thk,
-    coreColor: core, edgeColor: edge, intensity: 1.5 * fade * intensity,
-    crossPow: 1.5, coreBias: 0.4,
-    thickProfile: (u) => Math.pow(Math.sin(Math.PI * u), 0.55),
-    brightProfile: (u) => 0.12 + 0.88 * Math.pow(u, 1.3), radialBow,
+    coreColor: core, edgeColor: edge, intensity: 1.6 * fade * intensity,
+    crossPow: 1.35, coreBias: 0.45,
+    thickProfile: (u) => Math.pow(Math.sin(Math.PI * u), 0.5),
+    brightProfile: (u) => 0.35 + 0.65 * Math.pow(u, 1.2), radialBow,
   });
   if (tip) {
     const hx = cx + Math.cos(head) * radius;
     const hy = cy + Math.sin(head) * radius;
-    canvas.disc(hx, hy, 7 * fade + 1, core, 1.6 * fade * intensity, 2.0);
+    canvas.disc(hx, hy, (7 * fade + 1.5) * unit, core, 1.6 * fade * intensity, 2.0);
   }
 }
 
 // Tangential spark burst flung off the arc near `head` as it dissipates.
 function sparkBurst(canvas, g) {
-  const { cx, cy, radius, head, span, pal = P.cyan, st, seed = 7, count = 14 } = g;
+  const { cx, cy, radius, head, span, pal = P.cyan, st, seed = 7, count = 14, unit = 1 } = g;
   if (st <= 0) return;
   const R = rng(seed);
   const core = pal.core, edge = pal.edge;
@@ -64,16 +67,15 @@ function sparkBurst(canvas, g) {
     const p = st - life * 0.5;
     if (p < 0 || p > 1) continue;
     const a = head - (0.05 + R() * 0.5) * span;
-    const rr = radius + (R() - 0.3) * 10;
+    const rr = radius + (R() - 0.3) * 10 * unit;
     const ox = cx + Math.cos(a) * rr;
     const oy = cy + Math.sin(a) * rr;
     const tang = a + Math.PI / 2 * (R() < 0.5 ? 1 : -1);
-    const spd = (18 + R() * 26) * p;
+    const spd = (18 + R() * 26) * unit * p;
     const px = ox + Math.cos(a) * spd * 0.7 + Math.cos(tang) * spd * 0.5;
     const py = oy + Math.sin(a) * spd * 0.7 + Math.sin(tang) * spd * 0.5;
     const al = (1 - p) * 1.1;
     canvas.addSoft(px, py, i % 3 === 0 ? core : edge, al);
-    canvas.addSoft(px + 0.5, py, core, al * 0.4);
   }
 }
 
@@ -111,7 +113,7 @@ function arcSlash(canvas, t, cfg) {
     aStart, aEnd, spanDeg = 150, thick = 12,
     pal = P.cyan,
     sweepEase = 'outQuint', sweepDur = 0.55, growDur = 0.28, dissipateStart = 0.5,
-    radialBow = 5, seed = 7, sparks = true, anticipate = true,
+    radialBow = 5, seed = 7, sparks = true, anticipate = true, unit = 1,
   } = cfg;
   const core = pal.core;
   const a0d = aStart * D, a1d = aEnd * D;
@@ -132,13 +134,13 @@ function arcSlash(canvas, t, cfg) {
     const a = 1 - t / 0.22;
     const sx = cx + Math.cos(a0d) * radius;
     const sy = cy + Math.sin(a0d) * radius;
-    canvas.disc(sx, sy, 10 * a + 3, core, 0.9 * a, 2.2);
+    canvas.disc(sx, sy, (10 * a + 3) * unit, core, 0.9 * a, 2.2);
   }
 
-  paintBlade(canvas, { cx, cy, radius, tail, head, thk, fade, pal, radialBow });
+  paintBlade(canvas, { cx, cy, radius, tail, head, thk, fade, pal, radialBow, unit });
 
   if (sparks && t > 0.35) {
-    sparkBurst(canvas, { cx, cy, radius, head, span, pal, st: (t - 0.35) / 0.65, seed });
+    sparkBurst(canvas, { cx, cy, radius, head, span, pal, st: (t - 0.35) / 0.65, seed, unit });
   }
 }
 
