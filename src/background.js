@@ -131,14 +131,17 @@ function lake(buf, off, t) {
       col = mix(col, HAZE, (1 - p) * 0.5);            // aerial haze, stronger far (top)
       buf.set(x, y, col);
     }
-    buf.set(x, WATER_TOP, [0.42, 0.52, 0.68]); buf.set(x, WATER_TOP - 1, [0.26, 0.32, 0.48]); // waterline
+    // faint broken waterline shimmer (no hard full-width line); periodic = seamless
+    const wph = TAU * (x + off) / period;
+    const s = Math.sin(5 * wph + t * TAU) * Math.sin(2 * wph - t * TAU);
+    if (s > 0.4) buf.add(x, WATER_TOP, [0.2, 0.28, 0.42], 0.3 * (s - 0.4) / 0.6);
   }
-  // horizontal ripple highlight lines drifting across the surface
-  for (const ry of [4, 9, 15, 21]) {
+  // subtle horizontal ripple highlight lines drifting across the surface
+  for (const ry of [5, 11, 18]) {
     const y = WATER_TOP + ry, p = ry / (WATER_BOT - WATER_TOP);
     for (let x = 0; x < W; x++) {
-      const s = Math.sin((x + off * (1 + p)) * 0.11 + ry * 1.3 + t * TAU);
-      if (s > 0.82) buf.add(x, y, [0.45, 0.56, 0.76], 0.35 * (1 - p));
+      const s = Math.sin(TAU * (x + off) / period * 3 + ry * 1.3 + t * TAU);
+      if (s > 0.86) buf.add(x, y, [0.4, 0.5, 0.7], 0.28 * (1 - p));
     }
   }
   // soft colour reflections shimmering down from the surface (light columns)
