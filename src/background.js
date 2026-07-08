@@ -30,6 +30,8 @@ const clamp01 = (v) => (v < 0 ? 0 : v > 1 ? 1 : v);
 const mix = (a, b, t) => [lerp(a[0], b[0], t), lerp(a[1], b[1], t), lerp(a[2], b[2], t)];
 const scl = (c, k) => [c[0] * k, c[1] * k, c[2] * k];
 const TAU = Math.PI * 2;
+// stable value hash for rock grain
+function hash(x, y) { let h = (Math.imul(x | 0, 374761393) + Math.imul(y | 0, 668265263)) >>> 0; h = Math.imul(h ^ (h >>> 13), 1274126177) >>> 0; return (h >>> 0) / 4294967296; }
 
 // crystal hues (magical pastel): edge outline / deep body / body / hot core
 const HUES = {
@@ -88,7 +90,7 @@ function crystalCluster(buf, x, baseY, scale, dir, hueName, seed, pulseT, glowK 
   for (let i = 0; i < n; i++) specs.push({ len: scale * (0.55 + R() * 0.7), hw: scale * (0.13 + R() * 0.09), tilt: (R() - 0.5) * 0.75, off: (R() - 0.5) * scale * 0.55, ph: R() });
   specs.sort((a, b) => a.len - b.len); // shorter crystals behind
   for (const s of specs) {
-    const pulse = (0.82 + 0.18 * Math.sin((pulseT + s.ph) * TAU)) * glowK;
+    const pulse = (0.88 + 0.12 * Math.sin((pulseT + s.ph) * TAU)) * glowK;
     crystalSpike(buf, x + s.off, baseY, s.len, s.hw, base + s.tilt, hue, pulse);
   }
 }
@@ -113,23 +115,39 @@ function crystalClusterDark(buf, x, baseY, scale, dir, seed) {
   }
 }
 
-// undulating rock edge, periodic over `period`
+// undulating rock edge, periodic over `period` (extra octave = craggier lip)
 function rockEdge(worldX, period, base, amp, seedPhase) {
   const k = TAU / period;
-  return base + amp * 0.6 * Math.sin(k * worldX + seedPhase) + amp * 0.3 * Math.sin(k * 2 * worldX + seedPhase * 1.7) + amp * 0.18 * Math.sin(k * 3 * worldX + 2 + seedPhase);
+  return base
+    + amp * 0.6 * Math.sin(k * worldX + seedPhase)
+    + amp * 0.3 * Math.sin(k * 2 * worldX + seedPhase * 1.7)
+    + amp * 0.18 * Math.sin(k * 3 * worldX + 2 + seedPhase)
+    + amp * 0.1 * Math.sin(k * 5 * worldX + seedPhase * 2.3)
+    + amp * 0.06 * Math.sin(k * 8 * worldX + 1);
 }
 
-// rock band with strata bands + rim light; dir<0 ceiling (top), dir>0 floor (bottom)
-function rockBand(buf, off, period, dir, baseDepth, amp, seedPhase, dark, crack, rim) {
+// Volumetric rock band: depth-graded tones + grain dither + rim lip + cracks.
+// dir<0 ceiling (fills top), dir>0 floor (fills bottom). tones = [rim,near,mid,deep,crack].
+function rockBand(buf, off, period, dir, baseDepth, amp, seedPhase, tones) {
+  const [rim, near, mid, deep, crack] = tones;
   for (let x = 0; x < W; x++) {
     const wx = x + off;
     const edge = rockEdge(wx, period, baseDepth, amp, seedPhase);
     const yy = dir < 0 ? [0, Math.floor(edge)] : [Math.ceil(H - edge), H];
+    const ph = TAU * wx / period;                                 // periodic phase (seamless)
+    const gx = ((Math.round(wx) % period) + period) % period;     // grain wrapped to period
+    const crackOff = Math.floor(Math.sin(2 * ph) * 3 + Math.sin(5 * ph) * 1.6);
     for (let y = yy[0]; y < yy[1]; y++) {
       const depth = dir < 0 ? edge - y : y - (H - edge);
-      let c = dark;
-      if (depth < 2.2) c = rim;                                   // lit lip
-      else if (depth > 3 && ((y + Math.floor(Math.sin(wx * 0.09) * 3 + Math.sin(wx * 0.31) * 1.5)) % 11) === 0) c = crack; // sparse waving strata crack
+      let c;
+      if (depth < 2) c = rim;                                     // lit lip
+      else {
+        const g = hash(gx, y);                                    // grain
+        const dv = depth + (g - 0.5) * 3.2;                       // jitter tone bands
+        c = dv < 6 ? near : dv < 14 ? mid : deep;
+        if (depth > 3 && ((y + crackOff) % 11) === 0) c = crack;
+        else if (g > 0.93 && depth > 2.5) c = near;               // sparse light fleck
+      }
       buf.set(x, y, c);
     }
   }
@@ -200,14 +218,15 @@ function renderFrame(f) {
 
   // 2. far rock walls (strata + rim) + embedded gems + distant dim crystals
   const offFar = t * 128;
-  rockBand(buf, offFar, 128, -1, 20, 10, 0.5, [0.14, 0.11, 0.25], [0.09, 0.07, 0.18], [0.34, 0.3, 0.52]);
-  rockBand(buf, offFar, 128, 1, 24, 11, 2.1, [0.14, 0.11, 0.25], [0.09, 0.07, 0.18], [0.34, 0.3, 0.52]);
+  const rockTones = [[0.36, 0.32, 0.54], [0.23, 0.19, 0.38], [0.16, 0.13, 0.28], [0.10, 0.08, 0.19], [0.07, 0.055, 0.15]];
+  rockBand(buf, offFar, 128, -1, 20, 10, 0.5, rockTones);
+  rockBand(buf, offFar, 128, 1, 24, 11, 2.1, rockTones);
   forEachInstance(offFar, 128, [
     { x: 20, hue: 'cyan' }, { x: 58, hue: 'pink' }, { x: 95, hue: 'violet' }, { x: 118, hue: 'cyan' },
   ], (X, p) => embeddedGem(buf, X, p.x % 2 ? 12 : H - 12, p.hue, 0.8));
   forEachInstance(offFar, 128, [
     { x: 40, s: 10, dir: 1, hue: 'cyan', seed: 11 }, { x: 84, s: 9, dir: -1, hue: 'violet', seed: 12 },
-  ], (X, p) => crystalCluster(buf, X, p.dir > 0 ? H - 22 : 20, p.s, p.dir, p.hue, p.seed + (X | 0), t, 0.5));
+  ], (X, p) => crystalCluster(buf, X, p.dir > 0 ? H - 22 : 20, p.s, p.dir, p.hue, p.seed, t, 0.5));
   // stalactites hanging from the ceiling / stalagmites on the floor
   forEachInstance(offFar, 128, [{ x: 30, l: 11, w: 3 }, { x: 72, l: 8, w: 2.5 }, { x: 108, l: 13, w: 3.5 }], (X, p) => {
     const e = rockEdge(X + offFar, 128, 20, 10, 0.5); rockSpike(buf, X, e - 1, p.l, p.w, 1);
@@ -223,13 +242,13 @@ function renderFrame(f) {
     { x: 150, s: 30, dir: 1, hue: 'violet', seed: 25 }, { x: 176, s: 17, dir: 1, hue: 'pink', seed: 26 },
   ];
   forEachInstance(offMid, 192, midDefs.filter((d) => d.dir > 0), (X, p) => floorReflection(buf, X, H - 15, p.s * 0.7, p.s * 0.34, p.hue, 1));
-  forEachInstance(offMid, 192, midDefs, (X, p) => crystalCluster(buf, X, p.dir > 0 ? H - 16 : 18, p.s, p.dir, p.hue, p.seed + (X | 0), t, 1));
+  forEachInstance(offMid, 192, midDefs, (X, p) => crystalCluster(buf, X, p.dir > 0 ? H - 16 : 18, p.s, p.dir, p.hue, p.seed, t, 1));
 
   // 4. foreground silhouettes (fast)
   const offFg = t * 256;
   forEachInstance(offFg, 256, [
     { x: 40, s: 40, seed: 31 }, { x: 130, s: 34, seed: 32 }, { x: 208, s: 46, seed: 33 },
-  ], (X, p) => crystalClusterDark(buf, X, H + 3, p.s, 1, p.seed + (X | 0)));
+  ], (X, p) => crystalClusterDark(buf, X, H + 3, p.s, 1, p.seed));
 
   // 5. ambient motes + occasional twinkles
   const R = rng(99);
