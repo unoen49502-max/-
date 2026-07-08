@@ -59,8 +59,10 @@ function main() {
   // group by category so each sheet has a uniform native size / alignment
   const slashes = effects.filter((e) => /^\d/.test(e.name));
   const magic = effects.filter((e) => e.name.startsWith('magic'));
+  const stars = effects.filter((e) => e.name.startsWith('star'));
   renderSheet(slashes, path.join(OUT_DIR, 'OVERVIEW.png'));
   renderSheet(magic, path.join(OUT_DIR, 'OVERVIEW_magic.png'));
+  renderSheet(stars, path.join(OUT_DIR, 'OVERVIEW_star.png'));
 }
 
 main();

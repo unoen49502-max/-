@@ -13,6 +13,9 @@ const META = [
   { dir: 'magic_01_arcane', jp: '魔法陣・秘術', en: 'Arcane Circle', desc: 'ヘキサグラムが回る足元の魔法陣（ループ）。', hex: '#c05bff' },
   { dir: 'magic_02_fire',   jp: '魔法陣・炎',   en: 'Fire Circle',   desc: 'ペンタグラムと炎、火の粉が舞う（ループ）。', hex: '#ff6a1a' },
   { dir: 'magic_03_holy',   jp: '魔法陣・聖',   en: 'Holy Circle',   desc: '同心リングと放射光の荘厳な陣（ループ）。', hex: '#ffc23d' },
+  { dir: 'star_01_shot',    jp: 'スターショット', en: 'Star Shot',   desc: '回転する星の弾がキラキラの尾を引く。', hex: '#ff5aa0' },
+  { dir: 'star_02_burst',   jp: 'スターバースト', en: 'Star Burst',  desc: '星が炸裂し小さな星とキラキラが飛散。', hex: '#ffb020' },
+  { dir: 'star_03_shooting', jp: '流れ星',        en: 'Shooting Star', desc: '流星が着弾し星の火花で弾ける。', hex: '#5ac8ff' },
 ];
 
 const b64 = (p) => fs.readFileSync(p).toString('base64');
