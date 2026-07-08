@@ -73,31 +73,6 @@ module.exports = {
       canvas.disc(g[0], g[1], s(4) * a + s(1), [1, 1, 1], 0.6 * a, 2.2);
     }
 
-    // lagging afterimage arc — a dim ghost trailing the main blade for depth
-    if (t > 0.18 && fade > 0.05) {
-      const gh = ease.outCubic(seg(t, 0.06, 0.34));
-      const ghHead = A0 + SPAN * gh;
-      slashBand(canvas, {
-        cx, cy, radius: R, a0: A0, a1: ghHead,
-        maxThick: thick * 0.7, coreColor: [0.5, 0.8, 1], edgeColor: [0.14, 0.16, 0.5],
-        intensity: 0.5 * fade, crossPow: 2.2, coreBias: 0.1,
-        thickProfile: (u) => Math.pow(Math.sin(Math.PI * u), 0.6),
-        brightProfile: (u) => 0.3 + 0.7 * u, radialBow: s(5),
-      });
-    }
-
-    // 2. flanking wind lines during the fast part (air being cut)
-    if (smear > 0.03 && fade > 0.2) {
-      for (const off of [s(9), -s(8)]) {
-        slashBand(canvas, {
-          cx, cy, radius: R + off, a0: head - SPAN * 0.5, a1: head,
-          maxThick: s(1.6), coreColor: [1, 1, 1], edgeColor: [0.4, 0.7, 1],
-          intensity: 0.6 * smear, crossPow: 2.2, coreBias: 0.15,
-          thickProfile: (u) => Math.pow(u, 0.6), brightProfile: (u) => Math.pow(u, 1.5),
-        });
-      }
-    }
-
     // 3. main blade — impact boost whites it out at the strike
     if (tailLen > 3 * D && fade > 0.01) {
       paintBlade(canvas, {
