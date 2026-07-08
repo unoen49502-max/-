@@ -10,6 +10,9 @@ const META = [
   { dir: '03_cross',     jp: '十字斬り', en: 'Cross',     desc: '二連斬が交差、閃光が炸裂する。', hex: '#ffbe4d' },
   { dir: '04_spin',      jp: '回転斬り', en: 'Spin',      desc: '一回転して衝撃波リングへ拡散。', hex: '#4dffa0' },
   { dir: '05_rising',    jp: '斬り上げ', en: 'Rising',    desc: '左下→右上へ立ち上がる斬撃。', hex: '#a852ff' },
+  { dir: 'magic_01_arcane', jp: '魔法陣・秘術', en: 'Arcane Circle', desc: 'ヘキサグラムが回る足元の魔法陣（ループ）。', hex: '#c05bff' },
+  { dir: 'magic_02_fire',   jp: '魔法陣・炎',   en: 'Fire Circle',   desc: 'ペンタグラムと炎、火の粉が舞う（ループ）。', hex: '#ff6a1a' },
+  { dir: 'magic_03_holy',   jp: '魔法陣・聖',   en: 'Holy Circle',   desc: '同心リングと放射光の荘厳な陣（ループ）。', hex: '#ffc23d' },
 ];
 
 const b64 = (p) => fs.readFileSync(p).toString('base64');

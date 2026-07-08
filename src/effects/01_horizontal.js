@@ -1,5 +1,5 @@
 'use strict';
-const { slashBand, beam, ease, rng, mix } = require('../draw');
+const { slashBand, ease, rng } = require('../draw');
 const { paintBlade } = require('../slashAnim');
 const { RES, K } = require('../config');
 const s = (v) => v * K;
@@ -93,14 +93,8 @@ module.exports = {
       });
     }
 
-    // 5. impact frame — horizontal speed streak crossing the blade + bloom pop
+    // 5. impact frame — bloom pop at the strike (whiteout comes from #3)
     if (impact > 0.03) {
-      const yl = cy - R * 0.52;
-      beam(canvas, cx - R * 1.18, yl, cx + R * 1.18, yl, {
-        halfWidth: s(2.0) * impact + s(0.4), coreColor: [1, 1, 1], edgeColor: [0.7, 0.92, 1],
-        intensity: 1.6 * impact, widthProfile: (u) => Math.sin(Math.PI * u),
-        brightProfile: () => 1, crossPow: 1.6, coreBias: 0.55,
-      });
       const apex = P(-90 * D);
       canvas.disc(apex[0], apex[1], s(13) * impact + s(2), [1, 1, 1], 0.85 * impact, 2.2);
     }

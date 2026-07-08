@@ -61,7 +61,9 @@ function renderEffect(effect, outDir) {
 
   const darkPngs = [], alphaPngs = [], smallPngs = [];
   for (let f = 0; f < frames; f++) {
-    const t = frames === 1 ? 0 : f / (frames - 1);
+    // looping effects map the last frame to just-before wrap (f/frames) so the
+    // GIF cycles seamlessly; one-shots span the full 0..1 (f/(frames-1)).
+    const t = frames === 1 ? 0 : (effect.loop ? f / frames : f / (frames - 1));
     const canvas = new Canvas(size, size);
     effect.render(canvas, t, f);
     const dark = toPixelPNG(canvas, ramp, { scale, mode: 'dark', bg });
