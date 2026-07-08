@@ -7,7 +7,8 @@
     "build": "node src/build.js && node src/overview.js && node src/gallery.js",
     "effects": "node src/build.js",
     "overview": "node src/overview.js",
-    "gallery": "node src/gallery.js"
+    "gallery": "node src/gallery.js",
+    "icons": "node src/buildIcons.js"
   },
   "repository": {
     "type": "git",
