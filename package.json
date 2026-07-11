@@ -9,7 +9,8 @@
     "overview": "node src/overview.js",
     "gallery": "node src/gallery.js",
     "icons": "node src/buildIcons.js",
-    "bg": "node src/background.js"
+    "bg": "node src/background.js",
+    "frames": "node src/frames.js"
   },
   "repository": {
     "type": "git",
