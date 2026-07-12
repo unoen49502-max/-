@@ -34,29 +34,42 @@ const RARITY = {
   red:     { base: [230, 82, 90], lt: [255, 150, 150], dk: [162, 42, 54], rim: [64, 16, 24], well: [96, 40, 46], glow: 0.4 },
 };
 
-// draw one empty slot frame of a given rarity into a fresh S×S canvas
+// 4×4 ordered-dither threshold matrix (for stepped, pixel-art glows)
+const BAYER = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5];
+
+// Draw one empty slot frame: flat limited-palette bands with a HARD pixel bevel
+// (top light / left mid / right dark-mid / bottom dark), a 1px inset shadow ring,
+// a flat rarity well, and a dithered central glow — deliberate dot-art, no
+// smooth gradients.
 function drawSlot(rarity) {
   const cv = new IconCanvas(S);
   const r = RARITY[rarity];
   const c = (S - 1) / 2;
+  const dark = scl(r.dk, 0.62);
+  const wShad = scl(r.well, 0.6), wLit = scl(r.well, 1.18);
+  const glowA = scl(r.well, 1.5), glowB = scl(r.well, 2.05);
   for (let y = 0; y < S; y++) {
     for (let x = 0; x < S; x++) {
       const d = rrSDF(x + 0.5, y + 0.5, c, c, S / 2, S / 2, R);
       if (d > 0.3) continue;                                   // outside → transparent
-      if (d > -1.4) { cv.set(x, y, r.rim); continue; }         // dark outline
-      if (d > -4.4) {                                          // bevelled colour border
-        const li = -((x - c) * 0.5 + (y - c)) / (S * 0.5);
-        cv.set(x, y, li > 0.28 ? r.lt : li < -0.28 ? r.dk : r.base);
+      const nx = x - c, ny = y - c, vert = Math.abs(ny) >= Math.abs(nx);
+      if (d > -1.35) { cv.set(x, y, r.rim); continue; }        // 1px dark outline
+      if (d > -3.5) {                                          // 2px hard bevel border
+        cv.set(x, y, vert ? (ny < 0 ? r.lt : dark) : (nx < 0 ? r.base : r.dk));
         continue;
       }
-      // recessed well: bright-ish hued rarity background (never black), soft
-      // top→bottom gradient, a central premium glow that scales with the tier,
-      // and a subtle inner top shadow for the inset look.
-      let bg = mix(scl(r.well, 0.86), scl(r.well, 1.3), (y - 4) / (S - 8));
-      const dc = Math.hypot(x - c, y - c) / (S * 0.5);
-      bg = mix(bg, scl(r.well, 1.85), Math.max(0, 1 - dc * 1.35) * r.glow);
-      if (d > -5.4) bg = scl(bg, 0.78);                        // inner edge shadow
-      cv.set(x, y, bg);
+      if (d > -4.7) {                                          // 1px inset shadow / highlight
+        cv.set(x, y, (vert ? ny < 0 : nx < 0) ? wShad : wLit);
+        continue;
+      }
+      // flat well + dithered central premium glow (bigger/brighter per tier)
+      let col = r.well;
+      const dc = Math.hypot(nx, ny) / (S * 0.5);
+      const gl = Math.max(0, 1 - dc * 1.4) * r.glow;
+      const th = BAYER[(y & 3) * 4 + (x & 3)] / 16;
+      if (gl > 0.55 + th * 0.55) col = glowB;
+      else if (gl > 0.16 + th * 0.7) col = glowA;
+      cv.set(x, y, col);
     }
   }
   return cv;
