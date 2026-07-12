@@ -19,16 +19,19 @@ const mix = (a, b, t) => [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t, a[
 const scl = (c, k) => [c[0] * k, c[1] * k, c[2] * k];
 
 // rarity palettes: base border + light/dark bevel tints + dark rim/outline
+// Rarity progression (low → high): gray < green < blue < gold < pink.
 // base = border, lt/dk = bevel tints, rim = dark outline, well = recessed
-// background (a dark but clearly-hued rarity colour so the tier reads at a glance)
+// background (kept clearly hued so it never reads as black), glow = central
+// premium bloom that grows with the tier so higher rarities feel richer.
 const RARITY = {
-  gray:    { base: [104, 108, 128], lt: [156, 160, 182], dk: [58, 60, 80], rim: [22, 22, 34], well: [40, 42, 56] },
-  green:   { base: [92, 194, 110], lt: [156, 234, 158], dk: [42, 120, 62], rim: [16, 46, 26], well: [26, 58, 36] },
-  blue:    { base: [78, 150, 236], lt: [150, 202, 255], dk: [40, 86, 172], rim: [16, 30, 70], well: [26, 46, 86] },
-  purple:  { base: [170, 102, 226], lt: [216, 172, 252], dk: [104, 54, 162], rim: [40, 20, 70], well: [52, 32, 78] },
-  gold:    { base: [242, 198, 72], lt: [255, 238, 156], dk: [192, 132, 36], rim: [74, 46, 12], well: [64, 48, 22] },
-  red:     { base: [230, 82, 90], lt: [255, 150, 150], dk: [162, 42, 54], rim: [64, 16, 24], well: [68, 28, 34] },
-  magenta: { base: [230, 82, 184], lt: [255, 150, 222], dk: [162, 42, 124], rim: [64, 16, 54], well: [68, 28, 60] },
+  gray:  { base: [122, 128, 148], lt: [168, 172, 192], dk: [70, 74, 96], rim: [26, 26, 40], well: [56, 60, 80], glow: 0.0 },
+  green: { base: [96, 202, 118], lt: [160, 238, 164], dk: [46, 128, 68], rim: [16, 50, 28], well: [40, 92, 56], glow: 0.14 },
+  blue:  { base: [82, 154, 240], lt: [152, 206, 255], dk: [42, 90, 178], rim: [16, 32, 74], well: [42, 80, 150], glow: 0.28 },
+  gold:  { base: [246, 202, 78], lt: [255, 240, 160], dk: [196, 136, 40], rim: [76, 48, 14], well: [116, 88, 36], glow: 0.44 },
+  pink:  { base: [250, 118, 192], lt: [255, 178, 226], dk: [192, 60, 140], rim: [72, 20, 56], well: [128, 54, 100], glow: 0.62 },
+  // extra colours (same treatment) for special slots
+  purple:  { base: [170, 102, 226], lt: [216, 172, 252], dk: [104, 54, 162], rim: [40, 20, 70], well: [66, 42, 100], glow: 0.4 },
+  red:     { base: [230, 82, 90], lt: [255, 150, 150], dk: [162, 42, 54], rim: [64, 16, 24], well: [96, 40, 46], glow: 0.4 },
 };
 
 // draw one empty slot frame of a given rarity into a fresh S×S canvas
@@ -46,9 +49,13 @@ function drawSlot(rarity) {
         cv.set(x, y, li > 0.28 ? r.lt : li < -0.28 ? r.dk : r.base);
         continue;
       }
-      // recessed well: dark hued rarity background, top→bottom gradient, top shadow
-      let bg = mix(scl(r.well, 0.72), scl(r.well, 1.18), (y - 4) / (S - 8));
-      if (d > -5.4) bg = scl(bg, 0.7);                         // inner edge shadow
+      // recessed well: bright-ish hued rarity background (never black), soft
+      // top→bottom gradient, a central premium glow that scales with the tier,
+      // and a subtle inner top shadow for the inset look.
+      let bg = mix(scl(r.well, 0.86), scl(r.well, 1.3), (y - 4) / (S - 8));
+      const dc = Math.hypot(x - c, y - c) / (S * 0.5);
+      bg = mix(bg, scl(r.well, 1.85), Math.max(0, 1 - dc * 1.35) * r.glow);
+      if (d > -5.4) bg = scl(bg, 0.78);                        // inner edge shadow
       cv.set(x, y, bg);
     }
   }
@@ -84,14 +91,24 @@ function main() {
   // one filled example each
   rarities.forEach((r, i) => { const s = drawSlot(r); placeIcon(s, iconCanvases[i % iconCanvases.length]); writePNG(scalePNG(s, 6), path.join(OUT, `slot_${r}_filled.png`)); });
 
+  // 1b. progression strip: the 5 tiers empty, low→high, so the difference reads
+  const order = ['gray', 'green', 'blue', 'gold', 'pink'];
+  {
+    const sc = 6, cell = S * sc, gap = 4;
+    const strip = new PNG({ width: order.length * cell + (order.length + 1) * gap, height: cell + 2 * gap });
+    for (let i = 0; i < strip.data.length; i += 4) { strip.data[i] = 14; strip.data[i + 1] = 14; strip.data[i + 2] = 20; strip.data[i + 3] = 255; }
+    order.forEach((rar, k) => { const big = scalePNG(drawSlot(rar), sc), ox = gap + k * (cell + gap), oy = gap; for (let y = 0; y < cell; y++) for (let x = 0; x < cell; x++) { const si = (y * big.width + x) * 4; if (big.data[si + 3] === 0) continue; const di = ((oy + y) * strip.width + (ox + x)) * 4; strip.data[di] = big.data[si]; strip.data[di + 1] = big.data[si + 1]; strip.data[di + 2] = big.data[si + 2]; strip.data[di + 3] = 255; } });
+    writePNG(strip, path.join(OUT, 'FRAMES_progression.png'));
+  }
+
   // 2. demo grid resembling an inventory (rarity per row, icons + empties + locked)
   const layout = [
-    ['magenta', 'magenta', 'gold', 'gold', 'blue', 'red', 'red', 'purple'],
+    ['pink', 'pink', 'gold', 'gold', 'blue', 'red', 'red', 'purple'],
     ['purple', 'purple', 'gray', 'green', 'gold', 'red_lock', 'blue', 'green'],
     ['empty', 'empty', 'empty', 'empty', 'gray', 'gray', 'gray', 'empty'],
-    ['gold', 'gold', 'purple', 'green', 'blue', 'red', 'magenta', 'gray'],
+    ['gold', 'gold', 'purple', 'green', 'blue', 'red', 'pink', 'gray'],
     ['blue', 'gray', 'green', 'purple', 'gold', 'red_lock', 'blue', 'green'],
-    ['green', 'green', 'blue', 'gold', 'red', 'purple', 'magenta', 'gray'],
+    ['green', 'green', 'blue', 'gold', 'red', 'purple', 'pink', 'gray'],
   ];
   const scale = 5, cell = S * scale, gap = 3, cols = 8, rows = layout.length;
   const sheet = new PNG({ width: cols * cell + (cols + 1) * gap, height: rows * cell + (rows + 1) * gap });
