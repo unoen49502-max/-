@@ -19,14 +19,16 @@ const mix = (a, b, t) => [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t, a[
 const scl = (c, k) => [c[0] * k, c[1] * k, c[2] * k];
 
 // rarity palettes: base border + light/dark bevel tints + dark rim/outline
+// base = border, lt/dk = bevel tints, rim = dark outline, well = recessed
+// background (a dark but clearly-hued rarity colour so the tier reads at a glance)
 const RARITY = {
-  gray:    { base: [104, 108, 128], lt: [156, 160, 182], dk: [58, 60, 80], rim: [22, 22, 34] },
-  green:   { base: [92, 194, 110], lt: [156, 234, 158], dk: [42, 120, 62], rim: [16, 46, 26] },
-  blue:    { base: [78, 150, 236], lt: [150, 202, 255], dk: [40, 86, 172], rim: [16, 30, 70] },
-  purple:  { base: [170, 102, 226], lt: [216, 172, 252], dk: [104, 54, 162], rim: [40, 20, 70] },
-  gold:    { base: [242, 198, 72], lt: [255, 238, 156], dk: [192, 132, 36], rim: [74, 46, 12] },
-  red:     { base: [230, 82, 90], lt: [255, 150, 150], dk: [162, 42, 54], rim: [64, 16, 24] },
-  magenta: { base: [230, 82, 184], lt: [255, 150, 222], dk: [162, 42, 124], rim: [64, 16, 54] },
+  gray:    { base: [104, 108, 128], lt: [156, 160, 182], dk: [58, 60, 80], rim: [22, 22, 34], well: [40, 42, 56] },
+  green:   { base: [92, 194, 110], lt: [156, 234, 158], dk: [42, 120, 62], rim: [16, 46, 26], well: [26, 58, 36] },
+  blue:    { base: [78, 150, 236], lt: [150, 202, 255], dk: [40, 86, 172], rim: [16, 30, 70], well: [26, 46, 86] },
+  purple:  { base: [170, 102, 226], lt: [216, 172, 252], dk: [104, 54, 162], rim: [40, 20, 70], well: [52, 32, 78] },
+  gold:    { base: [242, 198, 72], lt: [255, 238, 156], dk: [192, 132, 36], rim: [74, 46, 12], well: [64, 48, 22] },
+  red:     { base: [230, 82, 90], lt: [255, 150, 150], dk: [162, 42, 54], rim: [64, 16, 24], well: [68, 28, 34] },
+  magenta: { base: [230, 82, 184], lt: [255, 150, 222], dk: [162, 42, 124], rim: [64, 16, 54], well: [68, 28, 60] },
 };
 
 // draw one empty slot frame of a given rarity into a fresh S×S canvas
@@ -44,10 +46,9 @@ function drawSlot(rarity) {
         cv.set(x, y, li > 0.28 ? r.lt : li < -0.28 ? r.dk : r.base);
         continue;
       }
-      // recessed well: vertical gradient + faint rarity tint + inner top shadow
-      let bg = mix([21, 21, 31], [34, 34, 50], (y - 4) / (S - 8));
-      bg = mix(bg, r.dk, 0.14);
-      if (d > -5.4) bg = scl(bg, 0.68);                        // inner edge shadow
+      // recessed well: dark hued rarity background, top→bottom gradient, top shadow
+      let bg = mix(scl(r.well, 0.72), scl(r.well, 1.18), (y - 4) / (S - 8));
+      if (d > -5.4) bg = scl(bg, 0.7);                         // inner edge shadow
       cv.set(x, y, bg);
     }
   }
