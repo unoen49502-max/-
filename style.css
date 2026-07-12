@@ -1,0 +1,415 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: transparent;
+  /* ウィンドウ全体はクリックを受け取らない(キャラクターだけ受け取る) */
+  pointer-events: none;
+  user-select: none;
+}
+
+/* ===== キャラクター本体 ===== */
+
+#character {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100px;
+  height: 100px;
+  pointer-events: auto;
+  cursor: grab;
+  will-change: transform;
+}
+
+#character:active {
+  cursor: grabbing;
+}
+
+.cat {
+  position: absolute;
+  inset: 0;
+  transform-origin: 50% 100%;
+}
+
+.facing-left .cat {
+  transform: scaleX(-1);
+}
+
+/* 胴体 */
+.body {
+  position: absolute;
+  left: 15px;
+  bottom: 12px;
+  width: 70px;
+  height: 60px;
+  background: #f5a34a;
+  border: 3px solid #5c4432;
+  border-radius: 46% 46% 44% 44%;
+  transform-origin: 50% 100%;
+  z-index: 2;
+}
+
+.belly {
+  position: absolute;
+  left: 50%;
+  bottom: -1px;
+  width: 34px;
+  height: 24px;
+  transform: translateX(-50%);
+  background: #ffe9c9;
+  border-radius: 50% 50% 40% 40%;
+}
+
+/* 耳 */
+.ear {
+  position: absolute;
+  top: -12px;
+  width: 20px;
+  height: 20px;
+  background: #f5a34a;
+  border: 3px solid #5c4432;
+  border-radius: 30% 70% 20% 60%;
+  z-index: -1;
+}
+
+.ear-l {
+  left: 4px;
+  transform: rotate(-18deg);
+}
+
+.ear-r {
+  right: 4px;
+  transform: rotate(58deg);
+}
+
+/* 顔 */
+.face {
+  position: absolute;
+  left: 0;
+  top: 14px;
+  width: 100%;
+  height: 30px;
+}
+
+.eye {
+  position: absolute;
+  top: 4px;
+  width: 8px;
+  height: 10px;
+  background: #3b2c22;
+  border-radius: 50%;
+  transition: transform 0.08s;
+}
+
+.eye-l {
+  left: 15px;
+}
+
+.eye-r {
+  right: 15px;
+}
+
+.blink .eye {
+  transform: scaleY(0.12);
+}
+
+.cheek {
+  position: absolute;
+  top: 14px;
+  width: 10px;
+  height: 6px;
+  background: #ff9d9d;
+  border-radius: 50%;
+  opacity: 0.8;
+}
+
+.cheek-l {
+  left: 8px;
+}
+
+.cheek-r {
+  right: 8px;
+}
+
+.mouth {
+  position: absolute;
+  left: 50%;
+  top: 14px;
+  width: 8px;
+  height: 5px;
+  transform: translateX(-50%);
+  border: 2px solid #5c4432;
+  border-top: none;
+  border-radius: 0 0 8px 8px;
+  background: transparent;
+}
+
+/* 脚 */
+.leg {
+  position: absolute;
+  bottom: 0;
+  width: 13px;
+  height: 18px;
+  background: #f5a34a;
+  border: 3px solid #5c4432;
+  border-radius: 6px 6px 8px 8px;
+  transform-origin: 50% 0%;
+  z-index: 1;
+}
+
+.leg-back {
+  left: 26px;
+}
+
+.leg-front {
+  right: 26px;
+}
+
+/* しっぽ */
+.tail {
+  position: absolute;
+  left: 2px;
+  bottom: 30px;
+  width: 26px;
+  height: 12px;
+  background: #f5a34a;
+  border: 3px solid #5c4432;
+  border-radius: 8px 2px 2px 8px;
+  transform-origin: 100% 50%;
+  transform: rotate(24deg);
+  animation: tail-sway 2.4s ease-in-out infinite;
+  z-index: 0;
+}
+
+/* 吹き出し */
+.bubble {
+  position: absolute;
+  left: 50%;
+  bottom: 104px;
+  transform: translateX(-50%);
+  max-width: 220px;
+  padding: 6px 12px;
+  background: #fffdf5;
+  border: 2px solid #5c4432;
+  border-radius: 12px;
+  color: #4a3626;
+  font-family: 'Hiragino Maru Gothic ProN', 'Yu Gothic', 'Meiryo', sans-serif;
+  font-size: 13px;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s;
+  z-index: 10;
+}
+
+.bubble::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: -7px;
+  width: 10px;
+  height: 10px;
+  background: #fffdf5;
+  border-right: 2px solid #5c4432;
+  border-bottom: 2px solid #5c4432;
+  transform: translateX(-50%) rotate(45deg);
+}
+
+.bubble.show {
+  opacity: 1;
+}
+
+/* 居眠りの Zzz */
+.zzz {
+  position: absolute;
+  left: 68px;
+  bottom: 88px;
+  font-size: 18px;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 10;
+}
+
+/* ===== 状態ごとのアニメーション ===== */
+
+/* 待機: ゆっくり呼吸 */
+.state-idle .body {
+  animation: breathe 2.6s ease-in-out infinite;
+}
+
+/* 歩き: 体が弾んで脚が交互に動く */
+.state-walk .cat,
+.state-dash .cat {
+  animation: bob 0.5s ease-in-out infinite;
+}
+
+.state-walk .leg-front,
+.state-dash .leg-front {
+  animation: leg-swing-a 0.5s ease-in-out infinite;
+}
+
+.state-walk .leg-back,
+.state-dash .leg-back {
+  animation: leg-swing-b 0.5s ease-in-out infinite;
+}
+
+/* 走り: 同じ動きを速く */
+.state-dash .cat,
+.state-dash .leg-front,
+.state-dash .leg-back {
+  animation-duration: 0.25s;
+}
+
+/* おすわり: 少し沈んで脚が縮む */
+.state-sit .body,
+.state-sleep .body {
+  transform: translateY(5px) scaleY(0.94);
+}
+
+.state-sit .leg,
+.state-sleep .leg {
+  height: 12px;
+}
+
+/* 居眠り: 目を閉じて Zzz */
+.state-sleep .eye {
+  transform: scaleY(0.12);
+}
+
+.state-sleep .body {
+  transform: translateY(9px) scaleY(0.85);
+}
+
+.state-sleep .zzz {
+  opacity: 1;
+  animation: zzz-float 2s ease-in-out infinite;
+}
+
+/* つかまれ中・落下中: 脚がぶらぶら、目がまんまる */
+.state-drag .cat,
+.state-fall .cat {
+  animation: dangle 0.6s ease-in-out infinite;
+}
+
+.state-drag .leg-front,
+.state-fall .leg-front {
+  animation: leg-swing-a 0.6s ease-in-out infinite;
+}
+
+.state-drag .leg-back,
+.state-fall .leg-back {
+  animation: leg-swing-b 0.6s ease-in-out infinite;
+}
+
+.state-drag .eye,
+.state-fall .eye {
+  transform: scale(1.35);
+}
+
+.state-drag .mouth,
+.state-fall .mouth {
+  width: 6px;
+  height: 7px;
+  border: 2px solid #5c4432;
+  border-radius: 50%;
+  background: #7a5a42;
+}
+
+/* なでられて喜ぶ: にっこり目でジャンプ */
+.state-happy .cat {
+  animation: pop 0.45s ease-in-out 2;
+}
+
+.state-happy .eye {
+  height: 5px;
+  background: transparent;
+  border: 2px solid #3b2c22;
+  border-bottom: none;
+  border-radius: 8px 8px 0 0;
+}
+
+.state-happy .mouth {
+  width: 12px;
+  height: 7px;
+}
+
+/* ===== keyframes ===== */
+
+@keyframes breathe {
+  0%, 100% { transform: scaleY(1); }
+  50% { transform: scaleY(1.035); }
+}
+
+@keyframes bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+
+.facing-left.state-walk .cat,
+.facing-left.state-dash .cat {
+  animation-name: bob-flipped;
+}
+
+@keyframes bob-flipped {
+  0%, 100% { transform: scaleX(-1) translateY(0); }
+  50% { transform: scaleX(-1) translateY(-4px); }
+}
+
+@keyframes leg-swing-a {
+  0%, 100% { transform: rotate(24deg); }
+  50% { transform: rotate(-24deg); }
+}
+
+@keyframes leg-swing-b {
+  0%, 100% { transform: rotate(-24deg); }
+  50% { transform: rotate(24deg); }
+}
+
+@keyframes tail-sway {
+  0%, 100% { transform: rotate(24deg); }
+  50% { transform: rotate(44deg); }
+}
+
+@keyframes dangle {
+  0%, 100% { transform: rotate(-5deg); }
+  50% { transform: rotate(5deg); }
+}
+
+.facing-left.state-drag .cat,
+.facing-left.state-fall .cat {
+  animation-name: dangle-flipped;
+}
+
+@keyframes dangle-flipped {
+  0%, 100% { transform: scaleX(-1) rotate(-5deg); }
+  50% { transform: scaleX(-1) rotate(5deg); }
+}
+
+@keyframes pop {
+  0%, 100% { transform: translateY(0) scale(1, 1); }
+  30% { transform: translateY(0) scale(1.12, 0.85); }
+  60% { transform: translateY(-14px) scale(0.92, 1.1); }
+}
+
+.facing-left.state-happy .cat {
+  animation-name: pop-flipped;
+}
+
+@keyframes pop-flipped {
+  0%, 100% { transform: scaleX(-1) translateY(0) scale(1, 1); }
+  30% { transform: scaleX(-1) translateY(0) scale(1.12, 0.85); }
+  60% { transform: scaleX(-1) translateY(-14px) scale(0.92, 1.1); }
+}
+
+@keyframes zzz-float {
+  0% { transform: translateY(0); opacity: 0; }
+  30% { opacity: 1; }
+  100% { transform: translateY(-16px); opacity: 0; }
+}
