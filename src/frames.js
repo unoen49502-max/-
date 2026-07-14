@@ -23,56 +23,60 @@ const scl = (c, k) => [c[0] * k, c[1] * k, c[2] * k];
 // base = border, lt/dk = bevel tints, rim = dark outline, well = recessed
 // background (kept clearly hued so it never reads as black), glow = central
 // premium bloom that grows with the tier so higher rarities feel richer.
+// Rarity is shown by how ORNATE the frame is (not a background glow):
+//   bw = border thickness · inlay = inner bright accent line · corners =
+//   0 none / 1 stud / 2 gem. Higher tier = a richer, more reinforced frame.
 const RARITY = {
-  gray:  { base: [122, 128, 148], lt: [168, 172, 192], dk: [70, 74, 96], rim: [26, 26, 40], well: [56, 60, 80], glow: 0.0 },
-  green: { base: [96, 202, 118], lt: [160, 238, 164], dk: [46, 128, 68], rim: [16, 50, 28], well: [40, 92, 56], glow: 0.14 },
-  blue:  { base: [82, 154, 240], lt: [152, 206, 255], dk: [42, 90, 178], rim: [16, 32, 74], well: [42, 80, 150], glow: 0.28 },
-  gold:  { base: [246, 202, 78], lt: [255, 240, 160], dk: [196, 136, 40], rim: [76, 48, 14], well: [116, 88, 36], glow: 0.44 },
-  pink:  { base: [250, 118, 192], lt: [255, 178, 226], dk: [192, 60, 140], rim: [72, 20, 56], well: [128, 54, 100], glow: 0.62 },
-  // extra colours (same treatment) for special slots
-  purple:  { base: [170, 102, 226], lt: [216, 172, 252], dk: [104, 54, 162], rim: [40, 20, 70], well: [66, 42, 100], glow: 0.4 },
-  red:     { base: [230, 82, 90], lt: [255, 150, 150], dk: [162, 42, 54], rim: [64, 16, 24], well: [96, 40, 46], glow: 0.4 },
+  gray:  { base: [122, 128, 148], lt: [168, 172, 192], dk: [70, 74, 96], rim: [26, 26, 40], well: [56, 60, 80], bw: 2, inlay: false, corners: 0 },
+  green: { base: [96, 202, 118], lt: [160, 238, 164], dk: [46, 128, 68], rim: [16, 50, 28], well: [40, 92, 56], bw: 2, inlay: true, corners: 0 },
+  blue:  { base: [82, 154, 240], lt: [152, 206, 255], dk: [42, 90, 178], rim: [16, 32, 74], well: [42, 80, 150], bw: 2, inlay: true, corners: 1 },
+  gold:  { base: [246, 202, 78], lt: [255, 240, 160], dk: [196, 136, 40], rim: [76, 48, 14], well: [116, 88, 36], bw: 3, inlay: true, corners: 1 },
+  pink:  { base: [250, 118, 192], lt: [255, 178, 226], dk: [192, 60, 140], rim: [72, 20, 56], well: [128, 54, 100], bw: 3, inlay: true, corners: 2 },
+  // extra colours for special slots
+  purple:  { base: [170, 102, 226], lt: [216, 172, 252], dk: [104, 54, 162], rim: [40, 20, 70], well: [66, 42, 100], bw: 3, inlay: true, corners: 1 },
+  red:     { base: [230, 82, 90], lt: [255, 150, 150], dk: [162, 42, 54], rim: [64, 16, 24], well: [96, 40, 46], bw: 2, inlay: true, corners: 1 },
 };
 
-// 4×4 ordered-dither threshold matrix (for stepped, pixel-art glows)
-const BAYER = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5];
-
-// Draw one empty slot frame: flat limited-palette bands with a HARD pixel bevel
-// (top light / left mid / right dark-mid / bottom dark), a 1px inset shadow ring,
-// a flat rarity well, and a dithered central glow — deliberate dot-art, no
-// smooth gradients.
+// Draw one empty slot frame: flat limited-palette bands with a HARD pixel bevel.
+// Rarity enriches the FRAME: a bright inner inlay line, corner studs/gems, and a
+// thicker border — no background dither.
 function drawSlot(rarity) {
   const cv = new IconCanvas(S);
   const r = RARITY[rarity];
   const c = (S - 1) / 2;
   const dark = scl(r.dk, 0.62);
-  const wShad = scl(r.well, 0.6), wLit = scl(r.well, 1.18);
-  const glowA = scl(r.well, 1.5), glowB = scl(r.well, 2.05);
+  const wShad = scl(r.well, 0.62), wLit = scl(r.well, 1.16);
+  const inlayCol = r.corners === 2 ? mix(r.lt, [255, 255, 255], 0.45) : r.lt;
+  const oE = -1.35, bE = oE - r.bw, iE = bE - (r.inlay ? 1 : 0), sE = iE - 1;
   for (let y = 0; y < S; y++) {
     for (let x = 0; x < S; x++) {
       const d = rrSDF(x + 0.5, y + 0.5, c, c, S / 2, S / 2, R);
       if (d > 0.3) continue;                                   // outside → transparent
       const nx = x - c, ny = y - c, vert = Math.abs(ny) >= Math.abs(nx);
-      if (d > -1.35) { cv.set(x, y, r.rim); continue; }        // 1px dark outline
-      if (d > -3.5) {                                          // 2px hard bevel border
-        cv.set(x, y, vert ? (ny < 0 ? r.lt : dark) : (nx < 0 ? r.base : r.dk));
-        continue;
-      }
-      if (d > -4.7) {                                          // 1px inset shadow / highlight
-        cv.set(x, y, (vert ? ny < 0 : nx < 0) ? wShad : wLit);
-        continue;
-      }
-      // flat well + dithered central premium glow (bigger/brighter per tier)
-      let col = r.well;
-      const dc = Math.hypot(nx, ny) / (S * 0.5);
-      const gl = Math.max(0, 1 - dc * 1.4) * r.glow;
-      const th = BAYER[(y & 3) * 4 + (x & 3)] / 16;
-      if (gl > 0.55 + th * 0.55) col = glowB;
-      else if (gl > 0.16 + th * 0.7) col = glowA;
-      cv.set(x, y, col);
+      if (d > oE) cv.set(x, y, r.rim);                         // dark outline
+      else if (d > bE) cv.set(x, y, vert ? (ny < 0 ? r.lt : dark) : (nx < 0 ? r.base : r.dk)); // hard bevel
+      else if (d > iE) cv.set(x, y, inlayCol);                 // bright inner inlay line
+      else if (d > sE) cv.set(x, y, (vert ? ny < 0 : nx < 0) ? wShad : wLit); // inset shadow ring
+      else cv.set(x, y, r.well);                               // flat well
     }
   }
+  if (r.corners) drawCorners(cv, c, r, oE, bE);
   return cv;
+}
+
+// Corner studs (1) / gems (2) sitting on the frame's border ring.
+function drawCorners(cv, c, r, oE, bE) {
+  const gem = r.corners === 2, sz = gem ? 2 : 1;
+  const A = [[R - 2, R - 2], [S - 1 - (R - 2), R - 2], [R - 2, S - 1 - (R - 2)], [S - 1 - (R - 2), S - 1 - (R - 2)]];
+  for (const [ax, ay] of A) {
+    for (let dy = -sz; dy <= sz; dy++) for (let dx = -sz; dx <= sz; dx++) {
+      const x = ax + dx, y = ay + dy;
+      const d = rrSDF(x + 0.5, y + 0.5, c, c, S / 2, S / 2, R);
+      if (d > oE || d < bE - 1.6) continue;                   // keep on the border ring
+      const center = dx === 0 && dy === 0;
+      cv.set(x, y, gem && center ? [255, 255, 255] : gem ? r.lt : mix(r.lt, [255, 255, 255], 0.3));
+    }
+  }
 }
 
 // blit an icon canvas (32px) centred into a slot's recessed well
