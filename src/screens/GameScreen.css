@@ -1,0 +1,39 @@
+.game {
+  width: 100%;
+  max-width: 560px;
+}
+
+.game__header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+.game__title {
+  flex: 1;
+  text-align: center;
+  color: #fff;
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.game__stage {
+  background: var(--card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 36px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+  text-align: center;
+}
+.game__note {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--ink);
+}
+.game__todo {
+  font-size: 13px;
+  color: var(--ink-soft);
+}

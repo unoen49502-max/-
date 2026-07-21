@@ -1,0 +1,144 @@
+:root {
+  /* パレット */
+  --bg-0: #1b1f3b;
+  --bg-1: #2a2f57;
+  --ink: #1c2033;
+  --ink-soft: #5b6079;
+  --card: #ffffff;
+  --card-2: #f4f5fb;
+  --line: #e2e4f0;
+  --accent: #ff6b6b;
+  --accent-dark: #e2504f;
+  --accent-2: #4ecdc4;
+  --gold: #ffd166;
+
+  --radius: 18px;
+  --radius-sm: 12px;
+  --shadow: 0 18px 40px -18px rgba(12, 15, 40, 0.55);
+  --shadow-sm: 0 6px 16px -8px rgba(12, 15, 40, 0.4);
+
+  color-scheme: dark;
+  font-family: system-ui, -apple-system, "Hiragino Kaku Gothic ProN",
+    "Noto Sans JP", Meiryo, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  background: radial-gradient(circle at 50% -10%, var(--bg-1), var(--bg-0) 70%);
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+}
+
+.app {
+  min-height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+/* ===== 共通ボタン ===== */
+.btn {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  width: 100%;
+  padding: 18px 24px;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: 20px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.12s ease, box-shadow 0.12s ease, filter 0.12s ease;
+}
+.btn:active {
+  transform: translateY(2px);
+}
+.btn__label {
+  letter-spacing: 0.04em;
+}
+.btn__hint {
+  font-size: 12px;
+  font-weight: 500;
+  opacity: 0.75;
+}
+.btn--primary {
+  background: linear-gradient(180deg, var(--accent), var(--accent-dark));
+  color: #fff;
+  box-shadow: 0 10px 0 -2px var(--accent-dark), var(--shadow-sm);
+}
+.btn--primary:active {
+  box-shadow: 0 4px 0 -2px var(--accent-dark), var(--shadow-sm);
+}
+.btn--secondary {
+  background: var(--card);
+  color: var(--ink);
+  box-shadow: 0 10px 0 -2px var(--line), var(--shadow-sm);
+}
+.btn--secondary:active {
+  box-shadow: 0 4px 0 -2px var(--line), var(--shadow-sm);
+}
+.btn:focus-visible {
+  outline: 3px solid var(--accent-2);
+  outline-offset: 3px;
+}
+
+/* ===== 戻る等の小ボタン ===== */
+.iconbtn {
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 999px;
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.12s ease;
+}
+.iconbtn:hover {
+  background: rgba(255, 255, 255, 0.16);
+}
+.iconbtn:focus-visible {
+  outline: 3px solid var(--accent-2);
+  outline-offset: 2px;
+}
+
+/* ===== ピクロスのサムネイル ===== */
+.thumb {
+  display: grid;
+  gap: 2px;
+  padding: 6px;
+  background: var(--card-2);
+  border-radius: 10px;
+  box-shadow: inset 0 0 0 1px var(--line);
+}
+.thumb__cell {
+  border-radius: 2px;
+  background: #dfe2ee;
+}
+.thumb__cell--on {
+  background: var(--ink);
+}
+.thumb--hidden .thumb__cell,
+.thumb--hidden .thumb__cell--on {
+  background: repeating-linear-gradient(
+    45deg,
+    #d3d6e6,
+    #d3d6e6 4px,
+    #c7cbe0 4px,
+    #c7cbe0 8px
+  );
+}
