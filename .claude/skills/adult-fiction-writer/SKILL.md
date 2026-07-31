@@ -92,5 +92,6 @@ Web 連載として投稿する体裁は `references/web-serial.md` に詳しく
 ## 参照ファイル
 
 - `references/craft-eros.md` — 官能描写の技法（五感・緩急・語彙・避けたい型／register の振れ幅／単体ものの段階設計）。濡れ場を書く前に読む。
+- `references/vocab-eros.md` — 淫語・擬音・♡喘ぎの語彙帳（崩壊の段階表／SFX 体系／温度別の語彙リスト／役割分担）。同じ語の反復を避けるため、濡れ場を書くときは手元に開いておく。
 - `references/script-format.md` — セリフのみ形式・ASMR台本モード（ソロ独白／聞き手無言の対話・ト書き記法・トラック分割）。台本で書くとき読む。
 - `references/web-serial.md` — なろう/pixiv 連載の構成・引き・投稿体裁・タグ運用。
