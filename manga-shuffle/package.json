@@ -1,0 +1,15 @@
+{
+  "name": "manga-shuffle",
+  "version": "0.1.0",
+  "description": "話題の漫画をジャンル強制シャッフルで自動表示するスライドショー",
+  "type": "module",
+  "engines": { "node": ">=20" },
+  "bin": { "manga-shuffle": "bin/manga-shuffle.js" },
+  "scripts": {
+    "start": "node bin/manga-shuffle.js",
+    "doctor": "node bin/doctor.js",
+    "collect": "node bin/collect.js",
+    "test": "node --test \"test/**/*.test.js\""
+  },
+  "license": "MIT"
+}

@@ -1,0 +1,77 @@
+{
+  "server": {
+    "port": 4187,
+    "host": "127.0.0.1",
+    "open": true
+  },
+  "display": {
+    "secondsPerItem": 45,
+    "showTweetEmbed": true,
+    "pauseOnHover": true
+  },
+  "collect": {
+    "intervalMinutes": 90,
+    "poolSize": 600,
+    "reshowAfterDays": 60
+  },
+  "rotation": {
+    "quality": 1,
+    "starvation": 1.6,
+    "novelty": 1.2,
+    "cooldown": 2,
+    "repeatSource": 0.35,
+    "repeatAuthor": 0.8,
+    "temperature": 0.35,
+    "hardWindow": 3,
+    "cooldownWindow": 8,
+    "exploreRate": 0.2
+  },
+  "sources": {
+    "hatena": {
+      "enabled": true,
+      "queries": [
+        "漫画",
+        "マンガ",
+        "webマンガ",
+        "読切",
+        "漫画 感想",
+        "漫画 おすすめ"
+      ],
+      "minUsers": 20,
+      "pagesPerQuery": 2,
+      "withinDays": 120
+    },
+    "rss": {
+      "enabled": true,
+      "feeds": [
+        {
+          "url": "https://natalie.mu/comic/feed/news",
+          "name": "コミックナタリー",
+          "weight": 1
+        },
+        {
+          "url": "https://originalnews.nico/feed?cat=6",
+          "name": "ニコニコニュース(マンガ)",
+          "weight": 1
+        },
+        {
+          "url": "https://note.com/hashtag/漫画/rss",
+          "name": "note (#漫画)",
+          "weight": 1
+        }
+      ]
+    },
+    "x": {
+      "enabled": false,
+      "bearerToken": "",
+      "queries": [
+        "(漫画 OR マンガ) (描きました OR 読切 OR 新連載) -is:retweet -is:reply has:media lang:ja",
+        "(創作漫画 OR オリジナル漫画 OR エッセイ漫画) -is:retweet -is:reply has:media lang:ja"
+      ],
+      "maxReadsPerRun": 100,
+      "maxReadsPerDay": 300,
+      "minLikes": 300,
+      "listId": ""
+    }
+  }
+}
